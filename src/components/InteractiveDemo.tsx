@@ -139,6 +139,187 @@ function PredmaintDemo({ proxyId }: { proxyId: string }) {
   );
 }
 
+type DocCitation = {
+  chunk_id: string;
+  document_id: string;
+  score: number;
+  snippet: string;
+};
+
+type AskPayload = {
+  question: string;
+  answer: string;
+  citations: DocCitation[];
+  mode?: string;
+};
+
+const CITE_STYLES = [
+  {
+    badge: "border-cyan-400/50 bg-cyan-500/20 text-cyan-200",
+    card: "border-cyan-400/35 bg-cyan-500/5",
+    num: "bg-cyan-500/25 text-cyan-200",
+  },
+  {
+    badge: "border-emerald-400/50 bg-emerald-500/20 text-emerald-200",
+    card: "border-emerald-400/35 bg-emerald-500/5",
+    num: "bg-emerald-500/25 text-emerald-200",
+  },
+  {
+    badge: "border-amber-400/50 bg-amber-500/20 text-amber-200",
+    card: "border-amber-400/35 bg-amber-500/5",
+    num: "bg-amber-500/25 text-amber-200",
+  },
+  {
+    badge: "border-sky-400/50 bg-sky-500/20 text-sky-200",
+    card: "border-sky-400/35 bg-sky-500/5",
+    num: "bg-sky-500/25 text-sky-200",
+  },
+  {
+    badge: "border-rose-400/50 bg-rose-500/20 text-rose-200",
+    card: "border-rose-400/35 bg-rose-500/5",
+    num: "bg-rose-500/25 text-rose-200",
+  },
+] as const;
+
+function isAskPayload(data: unknown): data is AskPayload {
+  if (!data || typeof data !== "object") return false;
+  const d = data as Record<string, unknown>;
+  return typeof d.answer === "string" && Array.isArray(d.citations);
+}
+
+function citeIndexFromMarker(marker: string, citations: DocCitation[]): number {
+  const numbered = marker.match(/^\[(\d+):/);
+  if (numbered) {
+    const n = Number(numbered[1]);
+    if (n >= 1 && n <= citations.length) return n - 1;
+  }
+  const chunk = marker.match(/chunk_id=([^\]]+)\]|chunk:([^\]]+)\]/);
+  const id = chunk?.[1] ?? chunk?.[2];
+  if (id) {
+    const i = citations.findIndex((c) => c.chunk_id === id || c.chunk_id.startsWith(id));
+    if (i >= 0) return i;
+  }
+  return 0;
+}
+
+function AnswerWithCitationMarks({ answer, citations }: { answer: string; citations: DocCitation[] }) {
+  const parts = answer.split(/(\[\d+:chunk:[^\]]+\]|\[chunk_id=[^\]]+\])/g);
+  return (
+    <p className="whitespace-pre-wrap text-sm leading-relaxed text-ink">
+      {parts.map((part, i) => {
+        if (!/^\[/.test(part) || !/\]$/.test(part)) return <span key={i}>{part}</span>;
+        const idx = citeIndexFromMarker(part, citations);
+        const style = CITE_STYLES[idx % CITE_STYLES.length];
+        return (
+          <sup key={i} className="mx-0.5 inline-block align-super">
+            <a
+              href={`#cite-${idx + 1}`}
+              className={`inline-flex h-5 min-w-5 items-center justify-center rounded border px-1 font-mono text-[11px] font-semibold no-underline ${style.badge}`}
+              title={`Jump to citation ${idx + 1}`}
+            >
+              {idx + 1}
+            </a>
+          </sup>
+        );
+      })}
+    </p>
+  );
+}
+
+function GroundedAskPanel({
+  status,
+  ok,
+  data,
+  raw,
+}: {
+  status: number | null;
+  ok: boolean | null;
+  data: unknown;
+  raw: string;
+}) {
+  const [showJson, setShowJson] = useState(false);
+
+  if (!isAskPayload(data) || !ok) {
+    return (
+      <ResultPanel
+        out={raw}
+        status={status}
+        ok={ok}
+        data={data}
+        empty="// Grounded answer + numbered citations appear here"
+      />
+    );
+  }
+
+  const citations = data.citations;
+
+  return (
+    <div className="space-y-3">
+      {status !== null && (
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <p className="text-xs text-muted">
+            Grounded answer · mode <span className="font-mono text-accent">{data.mode ?? "ask"}</span>
+            {status ? (
+              <>
+                {" "}
+                · HTTP <span className="font-mono text-accent">{status}</span>
+              </>
+            ) : null}
+          </p>
+          <button
+            type="button"
+            className="text-xs text-muted underline-offset-2 hover:text-accent hover:underline"
+            onClick={() => setShowJson((v) => !v)}
+          >
+            {showJson ? "Show grounded view" : "Show raw JSON"}
+          </button>
+        </div>
+      )}
+      {showJson ? (
+        <pre className="json-view min-h-80 overflow-auto rounded-xl border border-line bg-black/40 p-4">{raw}</pre>
+      ) : (
+        <div className="min-h-80 space-y-4 overflow-auto rounded-xl border border-line bg-black/40 p-4">
+          <div>
+            <p className="mb-1 text-[11px] font-semibold tracking-wide text-accent uppercase">Answer</p>
+            <AnswerWithCitationMarks answer={data.answer} citations={citations} />
+          </div>
+          {citations.length > 0 && (
+            <div>
+              <p className="mb-2 text-[11px] font-semibold tracking-wide text-accent uppercase">
+                Citations · source passages
+              </p>
+              <ul className="space-y-2">
+                {citations.map((c, i) => {
+                  const style = CITE_STYLES[i % CITE_STYLES.length];
+                  return (
+                    <li
+                      key={`${c.chunk_id}-${i}`}
+                      id={`cite-${i + 1}`}
+                      className={`scroll-mt-24 rounded-lg border px-3 py-2.5 ${style.card}`}
+                    >
+                      <div className="mb-1.5 flex flex-wrap items-center gap-2">
+                        <span
+                          className={`inline-flex h-5 min-w-5 items-center justify-center rounded font-mono text-[11px] font-semibold ${style.num}`}
+                        >
+                          {i + 1}
+                        </span>
+                        <span className="font-mono text-[11px] text-muted">
+                          {c.document_id.slice(0, 12)}… · score {c.score.toFixed(3)}
+                        </span>
+                      </div>
+                      <p className="text-sm leading-relaxed text-ink/90">{c.snippet}</p>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function DocintelDemo({ proxyId }: { proxyId: string }) {
   const [question, setQuestion] = useState("What is the retention policy?");
   const [file, setFile] = useState<File | null>(null);
@@ -147,6 +328,7 @@ function DocintelDemo({ proxyId }: { proxyId: string }) {
   const [status, setStatus] = useState<number | null>(null);
   const [ok, setOk] = useState<boolean | null>(null);
   const [data, setData] = useState<unknown>(null);
+  const [view, setView] = useState<"ask" | "ingest">("ask");
 
   async function ingest() {
     if (!file) return;
@@ -158,6 +340,7 @@ function DocintelDemo({ proxyId }: { proxyId: string }) {
     setStatus(res.status);
     setOk(res.ok);
     setData(res.data);
+    setView("ingest");
     setBusy(false);
   }
 
@@ -171,6 +354,7 @@ function DocintelDemo({ proxyId }: { proxyId: string }) {
     setStatus(res.status);
     setOk(res.ok);
     setData(res.data);
+    setView("ask");
     setBusy(false);
   }
 
@@ -185,7 +369,10 @@ function DocintelDemo({ proxyId }: { proxyId: string }) {
             Ingest upload
           </Button>
         </div>
-        <p className="text-sm text-muted">Run Example asks the sample question below with citations.</p>
+        <p className="text-sm text-muted">
+          Capability focus: <span className="text-ink">grounded RAG</span> — answer markers map to colored source
+          passages (citations required).
+        </p>
         <div>
           <p className="mb-2 text-sm text-muted">Upload PDF/TXT (optional)</p>
           <input
@@ -205,7 +392,11 @@ function DocintelDemo({ proxyId }: { proxyId: string }) {
           />
         </label>
       </div>
-      <ResultPanel out={out} status={status} ok={ok} data={data} empty="// Answer + citations" />
+      {view === "ask" ? (
+        <GroundedAskPanel status={status} ok={ok} data={data} raw={out} />
+      ) : (
+        <ResultPanel out={out} status={status} ok={ok} data={data} empty="// Ingest response JSON" />
+      )}
     </div>
   );
 }

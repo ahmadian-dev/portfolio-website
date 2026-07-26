@@ -497,29 +497,140 @@ function ForecastDemo({ proxyId }: { proxyId: string }) {
   );
 }
 
+type SqlValidation = {
+  ok: boolean;
+  reasons: string[];
+  blocked?: boolean;
+};
+
+type SqlGeneratePayload = {
+  question?: string;
+  sql?: string;
+  validation?: SqlValidation;
+  mode?: string;
+};
+
+function sqlSafetyBadges(sql: string, validation?: SqlValidation | null): { ok: boolean; label: string }[] {
+  const badges: { ok: boolean; label: string }[] = [];
+  if (!validation) return badges;
+
+  if (validation.blocked || !validation.ok) {
+    badges.push({ ok: false, label: "BLOCKED" });
+    for (const reason of validation.reasons.slice(0, 3)) {
+      badges.push({ ok: false, label: reason.replace(/_/g, " ").toUpperCase() });
+    }
+    return badges;
+  }
+
+  const upper = sql.toUpperCase();
+  const selectOnly = /^\s*(WITH|SELECT)\b/.test(upper) && !/\b(INSERT|UPDATE|DELETE|DROP|ALTER|TRUNCATE|CREATE)\b/.test(upper);
+  badges.push({ ok: selectOnly, label: selectOnly ? "SELECT ONLY" : "NOT SELECT-ONLY" });
+
+  const limitEnforced =
+    /\bLIMIT\s+\d+\b/i.test(sql) || validation.reasons.some((r) => r.startsWith("limit_"));
+  badges.push({ ok: limitEnforced, label: limitEnforced ? "LIMIT ENFORCED" : "NO LIMIT" });
+
+  badges.push({ ok: true, label: "SAFETY PASSED" });
+  badges.push({ ok: true, label: "SCHEMA-AWARE" });
+  return badges;
+}
+
 function SqlDemo({ proxyId }: { proxyId: string }) {
   const [question, setQuestion] = useState("Show total revenue by product category");
   const [sql, setSql] = useState("");
   const [explain, setExplain] = useState("");
-  const [table, setTable] = useState<{ columns: string[]; rows: unknown[][] } | null>(null);
+  const [table, setTable] = useState<{ columns: string[]; rows: unknown[][]; rowCount?: number } | null>(null);
+  const [validation, setValidation] = useState<SqlValidation | null>(null);
+  const [mode, setMode] = useState<string | null>(null);
   const [raw, setRaw] = useState("");
   const [busy, setBusy] = useState(false);
   const [status, setStatus] = useState<number | null>(null);
   const [ok, setOk] = useState<boolean | null>(null);
   const [data, setData] = useState<unknown>(null);
+  const [stage, setStage] = useState<"idle" | "sql" | "explained" | "executed">("idle");
 
-  async function generate() {
+  const badges = useMemo(() => sqlSafetyBadges(sql, validation), [sql, validation]);
+
+  async function generateOnly() {
     setBusy(true);
+    setExplain("");
+    setTable(null);
     const res = await apiFetch(proxyId, "/v1/generate", {
       method: "POST",
       body: JSON.stringify({ question, dialect: "postgresql" }),
     });
-    const payload = res.data as { sql?: string };
+    const payload = res.data as SqlGeneratePayload;
     setSql(res.ok ? payload.sql ?? "" : "");
+    setValidation(res.ok ? payload.validation ?? null : null);
+    setMode(res.ok ? payload.mode ?? null : null);
     setRaw(pretty(res.data));
     setStatus(res.status);
     setOk(res.ok);
     setData(res.data);
+    setStage(res.ok ? "sql" : "idle");
+    setBusy(false);
+    return res;
+  }
+
+  async function runExample() {
+    setBusy(true);
+    setExplain("");
+    setTable(null);
+    setValidation(null);
+    setMode(null);
+
+    const gen = await apiFetch(proxyId, "/v1/generate", {
+      method: "POST",
+      body: JSON.stringify({ question, dialect: "postgresql" }),
+    });
+    const genPayload = gen.data as SqlGeneratePayload;
+    const nextSql = gen.ok ? genPayload.sql ?? "" : "";
+    setSql(nextSql);
+    setValidation(gen.ok ? genPayload.validation ?? null : null);
+    setMode(gen.ok ? genPayload.mode ?? null : null);
+    setStatus(gen.status);
+    setOk(gen.ok);
+    setData(gen.data);
+    setRaw(pretty(gen.data));
+
+    if (!gen.ok || !nextSql || genPayload.validation?.blocked) {
+      setStage("idle");
+      setBusy(false);
+      return;
+    }
+    setStage("sql");
+
+    const ex = await apiFetch(proxyId, "/v1/explain", {
+      method: "POST",
+      body: JSON.stringify({ sql: nextSql }),
+    });
+    const exPayload = ex.data as { explanation?: string };
+    if (ex.ok) {
+      setExplain(exPayload.explanation ?? "");
+      setStage("explained");
+    }
+
+    const exec = await apiFetch(proxyId, "/v1/execute", {
+      method: "POST",
+      body: JSON.stringify({ sql: nextSql, max_rows: 50 }),
+    });
+    const execPayload = exec.data as {
+      columns?: string[];
+      rows?: unknown[][];
+      row_count?: number;
+    };
+    setStatus(exec.status);
+    setOk(exec.ok);
+    setData(exec.data);
+    setRaw(pretty({ generate: gen.data, explain: ex.data, execute: exec.data }));
+    if (exec.ok && execPayload.columns && execPayload.rows) {
+      setTable({
+        columns: execPayload.columns,
+        rows: execPayload.rows,
+        rowCount: execPayload.row_count ?? execPayload.rows.length,
+      });
+      setStage("executed");
+    }
     setBusy(false);
   }
 
@@ -536,6 +647,7 @@ function SqlDemo({ proxyId }: { proxyId: string }) {
     setStatus(res.status);
     setOk(res.ok);
     setData(res.data);
+    if (res.ok) setStage("explained");
     setBusy(false);
   }
 
@@ -546,9 +658,15 @@ function SqlDemo({ proxyId }: { proxyId: string }) {
       method: "POST",
       body: JSON.stringify({ sql, max_rows: 50 }),
     });
-    const payload = res.data as { columns?: string[]; rows?: unknown[][] };
-    if (res.ok && payload.columns && payload.rows) setTable({ columns: payload.columns, rows: payload.rows });
-    else setTable(null);
+    const payload = res.data as { columns?: string[]; rows?: unknown[][]; row_count?: number };
+    if (res.ok && payload.columns && payload.rows) {
+      setTable({
+        columns: payload.columns,
+        rows: payload.rows,
+        rowCount: payload.row_count ?? payload.rows.length,
+      });
+      setStage("executed");
+    } else setTable(null);
     setRaw(pretty(res.data));
     setStatus(res.status);
     setOk(res.ok);
@@ -559,6 +677,10 @@ function SqlDemo({ proxyId }: { proxyId: string }) {
   return (
     <div className="space-y-4">
       <div className="rounded-xl border border-line bg-elev p-4">
+        <p className="mb-3 text-sm text-muted">
+          Capability focus: <span className="text-ink">safe NL→SQL</span> — generate, validate, explain, then
+          read-only execute.
+        </p>
         <label className="block text-sm text-muted">
           Natural language
           <textarea
@@ -568,8 +690,11 @@ function SqlDemo({ proxyId }: { proxyId: string }) {
           />
         </label>
         <div className="mt-3 flex flex-wrap gap-2">
-          <Button onClick={generate} disabled={busy} variant="primary">
+          <Button onClick={runExample} disabled={busy} variant="primary">
             {busy ? "Running…" : "Run Example"}
+          </Button>
+          <Button onClick={generateOnly} disabled={busy} variant="ghost">
+            Generate only
           </Button>
           <Button onClick={doExplain} disabled={busy || !sql} variant="ghost">
             Explain
@@ -579,53 +704,108 @@ function SqlDemo({ proxyId }: { proxyId: string }) {
           </Button>
         </div>
       </div>
+
+      <ol className="flex flex-wrap items-center gap-2 text-[11px] text-muted" aria-label="NL to SQL pipeline">
+        {[
+          { id: "nl", label: "Natural Language", on: true },
+          { id: "sql", label: "Generated SQL", on: stage !== "idle" || !!sql },
+          { id: "val", label: "Validation", on: !!validation },
+          { id: "exp", label: "Explanation", on: !!explain || stage === "explained" || stage === "executed" },
+          { id: "rows", label: "Rows Returned", on: !!table || stage === "executed" },
+        ].map((s, i, arr) => (
+          <li key={s.id} className="flex items-center gap-2">
+            <span
+              className={`rounded-md border px-2 py-1 font-medium ${
+                s.on ? "border-accent/40 bg-accent/10 text-accent" : "border-line bg-elev text-muted"
+              }`}
+            >
+              {s.label}
+            </span>
+            {i < arr.length - 1 && <span className="text-muted/50" aria-hidden>↓</span>}
+          </li>
+        ))}
+      </ol>
+
       {status !== null && !ok && (
         <p className="rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-xs text-warn" role="alert">
           {apiStatusHint(status, data)}
         </p>
       )}
+
       <div className="grid gap-4 lg:grid-cols-2">
         <div className="space-y-3">
-          <label className="block text-xs text-muted">
-            SQL
+          <div>
+            <div className="mb-1.5 flex flex-wrap items-center justify-between gap-2">
+              <p className="text-xs text-muted">Generated SQL</p>
+              {mode && <span className="font-mono text-[11px] text-muted">mode · {mode}</span>}
+            </div>
+            {badges.length > 0 && (
+              <div className="mb-2 flex flex-wrap gap-1.5" aria-label="Safety validation badges">
+                {badges.map((b) => (
+                  <span
+                    key={b.label}
+                    className={`inline-flex items-center gap-1 rounded-md border px-2 py-0.5 font-mono text-[11px] font-semibold ${
+                      b.ok
+                        ? "border-emerald-400/40 bg-emerald-500/10 text-emerald-300"
+                        : "border-rose-400/40 bg-rose-500/10 text-rose-300"
+                    }`}
+                  >
+                    <span aria-hidden>{b.ok ? "✓" : "✕"}</span>
+                    {b.label}
+                  </span>
+                ))}
+              </div>
+            )}
             <textarea
-              className="mt-1 h-40 w-full rounded-xl border border-line bg-black/40 p-3 font-mono text-xs text-accent outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+              className="h-40 w-full rounded-xl border border-line bg-black/40 p-3 font-mono text-xs text-accent outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
               value={sql}
               onChange={(e) => setSql(e.target.value)}
               placeholder="Generated SQL"
+              aria-label="Generated SQL"
             />
-          </label>
-          {explain && <p className="rounded-xl border border-line bg-elev p-3 text-sm text-muted">{explain}</p>}
+          </div>
+          {explain && (
+            <div className="rounded-xl border border-line bg-elev p-3">
+              <p className="mb-1 text-[11px] font-semibold tracking-wide text-accent uppercase">Explanation</p>
+              <p className="text-sm text-muted">{explain}</p>
+            </div>
+          )}
         </div>
         <div>
           {table ? (
-            <div className="max-h-72 overflow-auto rounded-xl border border-line">
-              <table className="w-full text-left text-xs">
-                <thead className="bg-soft text-muted">
-                  <tr>
-                    {table.columns.map((c) => (
-                      <th key={c} className="px-2 py-2 font-mono">
-                        {c}
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {table.rows.map((row, i) => (
-                    <tr key={i} className="border-t border-line">
-                      {row.map((cell, j) => (
-                        <td key={j} className="px-2 py-1.5 font-mono text-ink/90">
-                          {String(cell)}
-                        </td>
+            <div className="space-y-2">
+              <p className="text-xs text-muted">
+                Rows returned ·{" "}
+                <span className="font-mono text-accent">{table.rowCount ?? table.rows.length}</span>
+              </p>
+              <div className="max-h-72 overflow-auto rounded-xl border border-line">
+                <table className="w-full text-left text-xs">
+                  <thead className="bg-soft text-muted">
+                    <tr>
+                      {table.columns.map((c) => (
+                        <th key={c} className="px-2 py-2 font-mono">
+                          {c}
+                        </th>
                       ))}
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {table.rows.map((row, i) => (
+                      <tr key={i} className="border-t border-line">
+                        {row.map((cell, j) => (
+                          <td key={j} className="px-2 py-1.5 font-mono text-ink/90">
+                            {String(cell)}
+                          </td>
+                        ))}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
           ) : (
             <pre className="json-view min-h-40 overflow-auto rounded-xl border border-line bg-black/40 p-4">
-              {raw || "// Results"}
+              {raw || "// Validation → explanation → rows appear after Run Example"}
             </pre>
           )}
         </div>

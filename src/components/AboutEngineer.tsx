@@ -7,13 +7,12 @@ export function AboutEngineer() {
       <div className="mx-auto max-w-6xl">
         <p className="mb-2 text-xs font-semibold tracking-[0.14em] text-accent uppercase">About Engineer</p>
         <h2 className="font-[family-name:var(--font-display)] text-2xl text-ink md:text-3xl">{SITE.name}</h2>
-        <div className="glass mt-8 rounded-2xl p-6 md:p-8">
+        <div className="glass mt-6 rounded-2xl p-6 md:p-7">
           <p className="text-sm text-accent">{SITE.title}</p>
-          <p className="mt-2 max-w-2xl text-sm leading-relaxed text-muted">
-            Designs production-oriented AI systems: data pipelines, model training and evaluation, inference APIs, and
-            clear engineering documentation. Based in {SITE.location}.
+          <p className="mt-2 max-w-xl text-sm leading-relaxed text-muted">
+            Production-oriented AI/ML systems — evaluation, APIs, and honest limitations. {SITE.location}.
           </p>
-          <div className="mt-6 flex flex-wrap gap-4 text-sm">
+          <div className="mt-5 flex flex-wrap gap-4 text-sm">
             <a className="text-accent hover:underline" href={SITE.github} target="_blank" rel="noreferrer">
               GitHub
             </a>
@@ -25,9 +24,6 @@ export function AboutEngineer() {
             </Link>
             <Link className="text-accent hover:underline" href="/contact">
               Contact
-            </Link>
-            <Link className="text-accent hover:underline" href="/">
-              Portfolio
             </Link>
           </div>
         </div>

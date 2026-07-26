@@ -22,12 +22,20 @@ export type MetricRow = {
   baseline?: string;
 };
 
+export type EngineeringItem = {
+  label: string;
+  detail: string;
+  href: string;
+};
+
 export type ProjectConfig = {
   slug: ProjectSlug;
   proxyId: ProxyId;
   name: string;
   shortName: string;
   subtitle: string;
+  /** One-line outcome for hiring managers (hero). */
+  heroInsight: string;
   domain: string;
   github: string;
   swaggerPath: string;
@@ -41,7 +49,7 @@ export type ProjectConfig = {
   endpoints: EndpointSpec[];
   metrics: MetricRow[];
   chart: { labels: string[]; values: number[]; yLabel: string };
-  engineering: string[];
+  engineering: EngineeringItem[];
   integrity: string[];
   repoLinks: { label: string; href: string }[];
   interactive: ProxyId;
@@ -55,6 +63,8 @@ export const PROJECTS: ProjectConfig[] = [
     shortName: "Production ML Platform",
     subtitle:
       "End-to-end failure-risk scoring: leakage-safe features, chronological evaluation, LightGBM vs baseline, FastAPI serving.",
+    heroInsight:
+      "End-to-end predictive maintenance platform demonstrating production ML engineering, evaluation discipline, MLOps, and API deployment.",
     domain: "Predictive Maintenance · MLOps",
     github: "https://github.com/ahmadian-dev/predictive-maintenance-ml-platform",
     swaggerPath: "/docs",
@@ -126,12 +136,36 @@ export const PROJECTS: ProjectConfig[] = [
     ],
     chart: { labels: ["LogReg F1", "LightGBM F1"], values: [0.222, 0.8], yLabel: "F1" },
     engineering: [
-      "Docker Compose API image",
-      "GitHub Actions CI (ruff + pytest)",
-      "MLflow experiment tracking",
-      "Production artifact bundle",
-      "OpenAPI via FastAPI",
-      "Engineering docs 00–28",
+      {
+        label: "Docker",
+        detail: "Dockerfile",
+        href: "https://github.com/ahmadian-dev/predictive-maintenance-ml-platform/blob/main/Dockerfile",
+      },
+      {
+        label: "CI",
+        detail: "GitHub Actions",
+        href: "https://github.com/ahmadian-dev/predictive-maintenance-ml-platform/tree/main/.github/workflows",
+      },
+      {
+        label: "MLflow",
+        detail: "Experiment tracking",
+        href: "https://github.com/ahmadian-dev/predictive-maintenance-ml-platform/blob/main/docs/16_MLOPS_PIPELINE.md",
+      },
+      {
+        label: "Artifacts",
+        detail: "Production model bundle",
+        href: "https://github.com/ahmadian-dev/predictive-maintenance-ml-platform/tree/main/models/artifacts/production",
+      },
+      {
+        label: "OpenAPI",
+        detail: "FastAPI /docs",
+        href: "https://github.com/ahmadian-dev/predictive-maintenance-ml-platform/blob/main/docs/10_API_SPECIFICATION.md",
+      },
+      {
+        label: "Docs",
+        detail: "Engineering docs 00–28",
+        href: "https://github.com/ahmadian-dev/predictive-maintenance-ml-platform/tree/main/docs",
+      },
     ],
     integrity: [
       "Failure-mode target flags excluded from features (no leakage)",
@@ -172,6 +206,8 @@ export const PROJECTS: ProjectConfig[] = [
     shortName: "Document Intelligence",
     subtitle:
       "IDP with ingest, retrieval, RAG citations, field extraction, evaluation harness, and FastAPI delivery.",
+    heroInsight:
+      "Enterprise document intelligence with retrieval, citation-backed answers, evaluation harness, and production FastAPI packaging.",
     domain: "Document AI · RAG · LLM",
     github: "https://github.com/ahmadian-dev/enterprise-document-intelligence-platform",
     swaggerPath: "/docs",
@@ -232,12 +268,36 @@ export const PROJECTS: ProjectConfig[] = [
     ],
     chart: { labels: ["Hit-rate@5", "Citation", "Faithfulness"], values: [1, 1, 1], yLabel: "Score" },
     engineering: [
-      "Custom RAG pipeline (not a thin wrapper)",
-      "Evaluation harness on sample corpus",
-      "Docker + GitHub Actions",
-      "Optional LLM adapter with honest extractive default",
-      "OpenAPI delivery",
-      "Docs 00–28",
+      {
+        label: "RAG pipeline",
+        detail: "Custom retrieval stack",
+        href: "https://github.com/ahmadian-dev/enterprise-document-intelligence-platform/blob/main/docs/13_DOCUMENT_PROCESSING_PIPELINE.md",
+      },
+      {
+        label: "Evaluation",
+        detail: "Fixture harness",
+        href: "https://github.com/ahmadian-dev/enterprise-document-intelligence-platform/tree/main/data/eval",
+      },
+      {
+        label: "Docker",
+        detail: "Dockerfile",
+        href: "https://github.com/ahmadian-dev/enterprise-document-intelligence-platform/blob/main/Dockerfile",
+      },
+      {
+        label: "CI",
+        detail: "GitHub Actions",
+        href: "https://github.com/ahmadian-dev/enterprise-document-intelligence-platform/tree/main/.github/workflows",
+      },
+      {
+        label: "OpenAPI",
+        detail: "FastAPI contracts",
+        href: "https://github.com/ahmadian-dev/enterprise-document-intelligence-platform/blob/main/docs/10_API_SPECIFICATION.md",
+      },
+      {
+        label: "Docs",
+        detail: "Engineering docs 00–28",
+        href: "https://github.com/ahmadian-dev/enterprise-document-intelligence-platform/tree/main/docs",
+      },
     ],
     integrity: [
       "Citations required for answers",
@@ -278,6 +338,8 @@ export const PROJECTS: ProjectConfig[] = [
     shortName: "Business Analytics & Forecasting",
     subtitle:
       "Chronological KPI forecasting with baselines vs LightGBM, MAPE/RMSE reporting, and FastAPI decision support.",
+    heroInsight:
+      "Business forecasting platform with chronological evaluation, baseline comparisons, and decision-support API packaging.",
     domain: "Forecasting · Analytics",
     github: "https://github.com/ahmadian-dev/forecast-platform",
     swaggerPath: "/docs",
@@ -331,12 +393,36 @@ export const PROJECTS: ProjectConfig[] = [
       yLabel: "MAPE",
     },
     engineering: [
-      "Chronological train/val/test",
-      "MLflow logging",
-      "Docker + GitHub Actions",
-      "FastAPI forecast + metrics",
-      "Presentation dashboard",
-      "Docs 00–28",
+      {
+        label: "Chronological split",
+        detail: "Leakage-safe holdout",
+        href: "https://github.com/ahmadian-dev/forecast-platform/blob/main/docs/14_MODEL_DEVELOPMENT.md",
+      },
+      {
+        label: "MLflow",
+        detail: "Experiment logging",
+        href: "https://github.com/ahmadian-dev/forecast-platform/blob/main/docs/16_MLOPS_PIPELINE.md",
+      },
+      {
+        label: "Docker",
+        detail: "Dockerfile",
+        href: "https://github.com/ahmadian-dev/forecast-platform/blob/main/Dockerfile",
+      },
+      {
+        label: "CI",
+        detail: "GitHub Actions",
+        href: "https://github.com/ahmadian-dev/forecast-platform/tree/main/.github/workflows",
+      },
+      {
+        label: "Dashboard",
+        detail: "Performance pack",
+        href: "https://github.com/ahmadian-dev/forecast-platform/blob/main/presentation/dashboard/index.html",
+      },
+      {
+        label: "Docs",
+        detail: "Engineering docs 00–28",
+        href: "https://github.com/ahmadian-dev/forecast-platform/tree/main/docs",
+      },
     ],
     integrity: [
       "Chronological splits — no random leakage",
@@ -346,30 +432,18 @@ export const PROJECTS: ProjectConfig[] = [
       "Real metrics only after training runs",
     ],
     repoLinks: [
-      {
-        label: "README",
-        href: "https://github.com/ahmadian-dev/enterprise-business-analytics-forecasting-platform#readme",
-      },
+      { label: "README", href: "https://github.com/ahmadian-dev/forecast-platform#readme" },
       {
         label: "Architecture",
-        href: "https://github.com/ahmadian-dev/enterprise-business-analytics-forecasting-platform/blob/main/presentation/architecture/architecture.html",
+        href: "https://github.com/ahmadian-dev/forecast-platform/blob/main/presentation/architecture/architecture.html",
       },
-      {
-        label: "Presentation",
-        href: "https://github.com/ahmadian-dev/enterprise-business-analytics-forecasting-platform/tree/main/presentation",
-      },
+      { label: "Presentation", href: "https://github.com/ahmadian-dev/forecast-platform/tree/main/presentation" },
       {
         label: "Dashboard",
-        href: "https://github.com/ahmadian-dev/enterprise-business-analytics-forecasting-platform/blob/main/presentation/dashboard/index.html",
+        href: "https://github.com/ahmadian-dev/forecast-platform/blob/main/presentation/dashboard/index.html",
       },
-      {
-        label: "Docs",
-        href: "https://github.com/ahmadian-dev/enterprise-business-analytics-forecasting-platform/tree/main/docs",
-      },
-      {
-        label: "Release v1.0.0",
-        href: "https://github.com/ahmadian-dev/enterprise-business-analytics-forecasting-platform/releases/tag/v1.0.0",
-      },
+      { label: "Docs", href: "https://github.com/ahmadian-dev/forecast-platform/tree/main/docs" },
+      { label: "Release v1.0.0", href: "https://github.com/ahmadian-dev/forecast-platform/releases/tag/v1.0.0" },
     ],
     interactive: "forecast",
   },
@@ -380,6 +454,8 @@ export const PROJECTS: ProjectConfig[] = [
     shortName: "AI SQL Copilot",
     subtitle:
       "Schema-aware NL→SQL with validation, explanation, and safe SELECT-only execution — not a chatbot wrapper.",
+    heroInsight:
+      "Schema-aware NL→SQL copilot with validation, safety gates, explanation, and safe read-only execution.",
     domain: "NL→SQL · Data Engineering",
     github: "https://github.com/ahmadian-dev/ai-sql-copilot",
     swaggerPath: "/docs",
@@ -440,12 +516,36 @@ export const PROJECTS: ProjectConfig[] = [
     ],
     chart: { labels: ["Execution", "Syntax", "Safety block"], values: [1, 1, 1], yLabel: "Rate" },
     engineering: [
-      "SELECT-only validator",
-      "Schema catalog introspection",
-      "Docker + optional Postgres profile",
-      "GitHub Actions CI",
-      "Fixture evaluation harness",
-      "Docs 00–28",
+      {
+        label: "Validator",
+        detail: "SELECT-only safety",
+        href: "https://github.com/ahmadian-dev/ai-sql-copilot/blob/main/docs/13_SQL_GENERATION_PIPELINE.md",
+      },
+      {
+        label: "Schema catalog",
+        detail: "Introspection",
+        href: "https://github.com/ahmadian-dev/ai-sql-copilot/blob/main/docs/09_DATABASE_DESIGN.md",
+      },
+      {
+        label: "Docker",
+        detail: "Dockerfile",
+        href: "https://github.com/ahmadian-dev/ai-sql-copilot/blob/main/Dockerfile",
+      },
+      {
+        label: "CI",
+        detail: "GitHub Actions",
+        href: "https://github.com/ahmadian-dev/ai-sql-copilot/tree/main/.github/workflows",
+      },
+      {
+        label: "Evaluation",
+        detail: "Fixture harness",
+        href: "https://github.com/ahmadian-dev/ai-sql-copilot/tree/main/tests",
+      },
+      {
+        label: "Docs",
+        detail: "Engineering docs 00–28",
+        href: "https://github.com/ahmadian-dev/ai-sql-copilot/tree/main/docs",
+      },
     ],
     integrity: [
       "Not positioned as a SQL chatbot",
@@ -477,6 +577,8 @@ export const PROJECTS: ProjectConfig[] = [
     shortName: "Computer Vision Inspection",
     subtitle:
       "Multi-task industrial inspection: classification, segmentation, segment-then-box detection, Grad-CAM, FastAPI.",
+    heroInsight:
+      "Multi-task computer vision inspection platform: classification, detection, segmentation, XAI, and FastAPI serving.",
     domain: "Computer Vision · Deep Learning",
     github: "https://github.com/ahmadian-dev/computer-vision-inspection-platform",
     swaggerPath: "/docs",
@@ -532,12 +634,36 @@ export const PROJECTS: ProjectConfig[] = [
       yLabel: "Score",
     },
     engineering: [
-      "PyTorch + torchvision",
-      "Shared preprocess train/serve",
-      "Grad-CAM overlays",
-      "Docker + GitHub Actions",
-      "MLflow metrics logging",
-      "Docs 00–28",
+      {
+        label: "PyTorch",
+        detail: "Multi-task models",
+        href: "https://github.com/ahmadian-dev/computer-vision-inspection-platform/blob/main/docs/13_COMPUTER_VISION_PIPELINE.md",
+      },
+      {
+        label: "Grad-CAM",
+        detail: "Explainability",
+        href: "https://github.com/ahmadian-dev/computer-vision-inspection-platform/blob/main/docs/08_UI_UX_SPECIFICATION.md",
+      },
+      {
+        label: "Docker",
+        detail: "Dockerfile",
+        href: "https://github.com/ahmadian-dev/computer-vision-inspection-platform/blob/main/Dockerfile",
+      },
+      {
+        label: "CI",
+        detail: "GitHub Actions",
+        href: "https://github.com/ahmadian-dev/computer-vision-inspection-platform/tree/main/.github/workflows",
+      },
+      {
+        label: "MLflow",
+        detail: "Metrics logging",
+        href: "https://github.com/ahmadian-dev/computer-vision-inspection-platform/blob/main/docs/16_MLOPS_PIPELINE.md",
+      },
+      {
+        label: "Docs",
+        detail: "Engineering docs 00–28",
+        href: "https://github.com/ahmadian-dev/computer-vision-inspection-platform/tree/main/docs",
+      },
     ],
     integrity: [
       "Synthetic industrial sample — not a live plant warranty",

@@ -35,8 +35,8 @@ export function InteractiveDemo({ project }: { project: ProjectConfig }) {
   return (
     <Section id="demo" eyebrow="Interactive Demo" title="Use the real system">
       <p className="mb-6 max-w-3xl text-sm text-muted">
-        Calls go through this site&apos;s API proxy to the project FastAPI service. If the backend is offline, you will
-        see a clear configuration or connectivity message.
+        Start with <span className="text-ink">Run Example</span> — one click fills a realistic payload and calls the
+        live FastAPI via this site&apos;s proxy.
       </p>
       {project.interactive === "predmaint" && <PredmaintDemo proxyId={project.proxyId} />}
       {project.interactive === "docintel" && <DocintelDemo proxyId={project.proxyId} />}
@@ -74,10 +74,6 @@ function ResultPanel({
   );
 }
 
-function StatusLine({ text }: { text: string }) {
-  return <p className="mt-3 text-xs text-muted">{text}</p>;
-}
-
 function PredmaintDemo({ proxyId }: { proxyId: string }) {
   const [features, setFeatures] = useState(PREDMAINT_DEFAULTS);
   const [out, setOut] = useState<string>("");
@@ -86,11 +82,11 @@ function PredmaintDemo({ proxyId }: { proxyId: string }) {
   const [ok, setOk] = useState<boolean | null>(null);
   const [data, setData] = useState<unknown>(null);
 
-  async function predict() {
+  async function predictWith(next: FeatureState) {
     setBusy(true);
     const res = await apiFetch(proxyId, "/v1/predict", {
       method: "POST",
-      body: JSON.stringify({ entity_id: "demo-entity", features }),
+      body: JSON.stringify({ entity_id: "demo-entity", features: next }),
     });
     setOut(pretty(res.data));
     setStatus(res.status);
@@ -99,10 +95,30 @@ function PredmaintDemo({ proxyId }: { proxyId: string }) {
     setBusy(false);
   }
 
+  async function predict() {
+    await predictWith(features);
+  }
+
+  async function runExample() {
+    setFeatures(PREDMAINT_DEFAULTS);
+    await predictWith(PREDMAINT_DEFAULTS);
+  }
+
   return (
     <div className="grid gap-6 lg:grid-cols-2">
       <div className="space-y-3 rounded-xl border border-line bg-elev p-4">
-        <p className="text-sm text-muted">Adjust sensor / engineered features, then predict failure risk.</p>
+        <div className="flex flex-wrap gap-2">
+          <Button onClick={runExample} disabled={busy} variant="primary">
+            {busy ? "Running…" : "Run Example"}
+          </Button>
+          <Button onClick={predict} disabled={busy} variant="ghost">
+            Predict
+          </Button>
+        </div>
+        <p className="text-sm text-muted">
+          Hiring-manager path: click <span className="text-ink">Run Example</span> to score the default payload. Or
+          adjust features below.
+        </p>
         <div className="grid max-h-80 grid-cols-1 gap-2 overflow-auto sm:grid-cols-2">
           {Object.entries(features).map(([key, value]) => (
             <label key={key} className="text-xs text-muted">
@@ -117,9 +133,6 @@ function PredmaintDemo({ proxyId }: { proxyId: string }) {
             </label>
           ))}
         </div>
-        <Button onClick={predict} disabled={busy}>
-          {busy ? "Predicting…" : "Predict"}
-        </Button>
       </div>
       <ResultPanel out={out} status={status} ok={ok} data={data} empty="// Prediction JSON" />
     </div>
@@ -164,6 +177,15 @@ function DocintelDemo({ proxyId }: { proxyId: string }) {
   return (
     <div className="grid gap-6 lg:grid-cols-2">
       <div className="space-y-4 rounded-xl border border-line bg-elev p-4">
+        <div className="flex flex-wrap gap-2">
+          <Button onClick={ask} disabled={busy} variant="primary">
+            {busy ? "Running…" : "Run Example"}
+          </Button>
+          <Button onClick={ingest} disabled={!file || busy} variant="soft">
+            Ingest upload
+          </Button>
+        </div>
+        <p className="text-sm text-muted">Run Example asks the sample question below with citations.</p>
         <div>
           <p className="mb-2 text-sm text-muted">Upload PDF/TXT (optional)</p>
           <input
@@ -173,11 +195,6 @@ function DocintelDemo({ proxyId }: { proxyId: string }) {
             onChange={(e) => setFile(e.target.files?.[0] ?? null)}
             className="block w-full text-sm text-muted file:mr-3 file:rounded-md file:border-0 file:bg-accent-dim file:px-3 file:py-1.5 file:text-white"
           />
-          <div className="mt-2">
-            <Button onClick={ingest} disabled={!file || busy} variant="soft">
-              Ingest
-            </Button>
-          </div>
         </div>
         <label className="block text-sm text-muted">
           Question
@@ -187,10 +204,6 @@ function DocintelDemo({ proxyId }: { proxyId: string }) {
             onChange={(e) => setQuestion(e.target.value)}
           />
         </label>
-        <Button onClick={ask} disabled={busy}>
-          {busy ? "Asking…" : "Ask with citations"}
-        </Button>
-        <StatusLine text="Answers include citation snippets when the index is loaded." />
       </div>
       <ResultPanel out={out} status={status} ok={ok} data={data} empty="// Answer + citations" />
     </div>
@@ -260,8 +273,8 @@ function ForecastDemo({ proxyId }: { proxyId: string }) {
           />
           <span className="font-mono text-accent">{horizon}</span>
         </label>
-        <Button onClick={run} disabled={busy}>
-          {busy ? "Forecasting…" : "Generate forecast"}
+        <Button onClick={run} disabled={busy} variant="primary">
+          {busy ? "Forecasting…" : "Run Example"}
         </Button>
       </div>
       {status !== null && !ok && (
@@ -364,8 +377,8 @@ function SqlDemo({ proxyId }: { proxyId: string }) {
           />
         </label>
         <div className="mt-3 flex flex-wrap gap-2">
-          <Button onClick={generate} disabled={busy}>
-            Generate SQL
+          <Button onClick={generate} disabled={busy} variant="primary">
+            {busy ? "Running…" : "Run Example"}
           </Button>
           <Button onClick={doExplain} disabled={busy || !sql} variant="ghost">
             Explain
@@ -451,11 +464,12 @@ function CvDemo({ proxyId }: { proxyId: string }) {
     });
   }
 
-  async function call(path: string, explain = false) {
-    if (!file) return;
+  async function call(path: string, explain = false, overrideFile?: File) {
+    const upload = overrideFile ?? file;
+    if (!upload) return;
     setBusy(true);
     const fd = new FormData();
-    fd.append("file", file);
+    fd.append("file", upload);
     const qs = explain ? "?explain=true" : "";
     const res = await apiFetch(proxyId, `${path}${qs}`, { method: "POST", body: fd });
     setOut(pretty(res.data));
@@ -473,9 +487,25 @@ function CvDemo({ proxyId }: { proxyId: string }) {
     setBusy(false);
   }
 
+  async function runExample() {
+    setBusy(true);
+    try {
+      const res = await fetch("/assets/samples/cv/img_0012.png");
+      const blob = await res.blob();
+      const sample = new File([blob], "img_0012.png", { type: "image/png" });
+      onFile(sample);
+      await call("/v1/classify", true, sample);
+    } finally {
+      setBusy(false);
+    }
+  }
+
   return (
     <div className="grid gap-6 lg:grid-cols-2">
       <div className="space-y-4 rounded-xl border border-line bg-elev p-4">
+        <Button onClick={runExample} disabled={busy} variant="primary">
+          {busy ? "Running…" : "Run Example"}
+        </Button>
         <input
           type="file"
           accept="image/png,image/jpeg"
@@ -484,17 +514,18 @@ function CvDemo({ proxyId }: { proxyId: string }) {
           className="block w-full text-sm text-muted file:mr-3 file:rounded-md file:border-0 file:bg-accent-dim file:px-3 file:py-1.5 file:text-white"
         />
         <p className="text-xs text-muted">
-          Tip: try sample{" "}
+          Run Example loads sample{" "}
           <a className="text-accent hover:underline" href="/assets/samples/cv/img_0012.png" target="_blank" rel="noreferrer">
             img_0012.png
-          </a>
+          </a>{" "}
+          and classifies with Grad-CAM.
         </p>
         {preview && (
           // eslint-disable-next-line @next/next/no-img-element
           <img src={preview} alt="Upload preview" className="max-h-48 rounded-lg border border-line object-contain" />
         )}
         <div className="flex flex-wrap gap-2">
-          <Button onClick={() => call("/v1/classify", true)} disabled={!file || busy}>
+          <Button onClick={() => call("/v1/classify", true)} disabled={!file || busy} variant="ghost">
             Classify + Grad-CAM
           </Button>
           <Button onClick={() => call("/v1/detect")} disabled={!file || busy} variant="ghost">

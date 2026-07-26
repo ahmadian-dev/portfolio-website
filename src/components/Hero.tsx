@@ -30,40 +30,39 @@ export function Hero({ project }: { project: ProjectConfig }) {
           <h1 className="max-w-4xl font-[family-name:var(--font-display)] text-3xl leading-tight text-ink md:text-5xl">
             {project.name}
           </h1>
-          <p className="mt-5 max-w-2xl text-base leading-relaxed text-muted md:text-lg">{project.subtitle}</p>
+          <p className="mt-5 max-w-3xl text-lg font-medium leading-relaxed text-ink md:text-xl">
+            {project.heroInsight}
+          </p>
+          <p className="mt-3 max-w-2xl text-sm leading-relaxed text-muted md:text-base">{project.subtitle}</p>
           <div className="mt-8 flex flex-wrap gap-3">
-            <Button href={project.github} variant="primary">
-              <CodeBracketSquareIcon className="h-4 w-4" />
-              GitHub
-              <ArrowTopRightOnSquareIcon className="h-3.5 w-3.5" />
-            </Button>
-            <Button href="#demo" variant="ghost">
+            <Button href="#demo" variant="primary">
               Interactive Demo
+            </Button>
+            <Button href={project.github} variant="ghost">
+              <CodeBracketSquareIcon className="h-4 w-4" aria-hidden />
+              GitHub
+              <ArrowTopRightOnSquareIcon className="h-3.5 w-3.5" aria-hidden />
+            </Button>
+            <Button href="#performance" variant="soft">
+              <ChartBarIcon className="h-4 w-4" aria-hidden />
+              Metrics
+            </Button>
+            <Button href="#architecture" variant="ghost">
+              <CubeTransparentIcon className="h-4 w-4" aria-hidden />
+              Architecture
             </Button>
             <Button href="#api" variant="ghost">
               API Docs
             </Button>
-            <Button href="#architecture" variant="ghost">
-              <CubeTransparentIcon className="h-4 w-4" />
-              Architecture
-            </Button>
-            <Button href="#performance" variant="soft">
-              <ChartBarIcon className="h-4 w-4" />
-              Performance
-            </Button>
             <Button href="#presentation" variant="soft">
-              <PresentationChartBarIcon className="h-4 w-4" />
+              <PresentationChartBarIcon className="h-4 w-4" aria-hidden />
               Presentation
             </Button>
             <Button href={`${project.github}#readme`} variant="ghost">
-              <BookOpenIcon className="h-4 w-4" />
+              <BookOpenIcon className="h-4 w-4" aria-hidden />
               README
             </Button>
           </div>
-          <p className="mt-6 text-xs text-muted">
-            Interactive calls proxy through this site → FastAPI. Configure{" "}
-            <span className="font-mono text-accent/90">{project.apiEnvKey}</span>.
-          </p>
         </motion.div>
       </div>
     </header>

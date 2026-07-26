@@ -1,36 +1,72 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Flagship Portfolio Website
 
-## Getting Started
+**Production domain:** https://portfolio.ahmadian.dev  
+**Owner:** Mohammad Ahmadian — AI / Machine Learning Engineer
 
-First, run the development server:
+Unified Next.js portfolio: navigation, project pages, and interactive FastAPI demos in **one** website.
+
+## Routes
+
+| Path | Page |
+|------|------|
+| `/` | Home |
+| `/about` | About |
+| `/projects` | Projects index |
+| `/projects/predictive-maintenance` | Production ML Platform |
+| `/projects/document-intelligence` | Document Intelligence |
+| `/projects/business-forecasting` | Business Forecasting |
+| `/projects/ai-sql-copilot` | AI SQL Copilot |
+| `/projects/computer-vision-inspection` | Computer Vision Inspection |
+| `/resume` | Resume |
+| `/contact` | Contact |
+
+## Stack
+
+Next.js 15 · TypeScript · Tailwind CSS · Framer Motion · Heroicons · Recharts
+
+## Local development
 
 ```bash
+cp .env.example .env.local
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open http://localhost:3000
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### API env (required for interactive demos)
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```env
+API_PREDMAINT_URL=http://127.0.0.1:8001
+API_DOCINTEL_URL=http://127.0.0.1:8002
+API_FORECAST_URL=http://127.0.0.1:8003
+API_SQLCOPILOT_URL=http://127.0.0.1:8004
+API_CVINSPECT_URL=http://127.0.0.1:8005
+```
 
-## Learn More
+Browser calls go through `/api/proxy/[proxyId]/...` (no CORS changes to FastAPI).
 
-To learn more about Next.js, take a look at the following resources:
+## Production
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+npm run build
+npm start
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Docker:
 
-## Deploy on Vercel
+```bash
+docker compose up --build
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Vercel: import this directory, set the five `API_*_URL` env vars, domain `portfolio.ahmadian.dev`.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## SEO
+
+- `sitemap.xml` · `robots.txt` · Open Graph · Twitter cards · JSON-LD · web manifest
+
+## Security notes
+
+- API proxy allowlists `/v1/*` (plus health/docs/openapi), blocks host escape / SSRF
+- Body size limit · upstream timeout · no-store on proxied responses
+- Security headers: CSP, HSTS, Permissions-Policy, X-Frame-Options

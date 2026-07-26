@@ -1,0 +1,31 @@
+name: portfolio-ci
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+      - name: Install
+        run: npm ci
+      - name: Lint
+        run: npm run lint
+      - name: Typecheck
+        run: npm run typecheck
+      - name: Production build
+        env:
+          API_PREDMAINT_URL: http://127.0.0.1:8001
+          API_DOCINTEL_URL: http://127.0.0.1:8002
+          API_FORECAST_URL: http://127.0.0.1:8003
+          API_SQLCOPILOT_URL: http://127.0.0.1:8004
+          API_CVINSPECT_URL: http://127.0.0.1:8005
+        run: npm run build

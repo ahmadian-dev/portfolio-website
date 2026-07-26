@@ -1,0 +1,19 @@
+services:
+  portfolio:
+    build:
+      context: .
+      args:
+        API_PREDMAINT_URL: ${API_PREDMAINT_URL:-http://host.docker.internal:8001}
+        API_DOCINTEL_URL: ${API_DOCINTEL_URL:-http://host.docker.internal:8002}
+        API_FORECAST_URL: ${API_FORECAST_URL:-http://host.docker.internal:8003}
+        API_SQLCOPILOT_URL: ${API_SQLCOPILOT_URL:-http://host.docker.internal:8004}
+        API_CVINSPECT_URL: ${API_CVINSPECT_URL:-http://host.docker.internal:8005}
+    ports:
+      - "3000:3000"
+    environment:
+      API_PREDMAINT_URL: ${API_PREDMAINT_URL:-http://host.docker.internal:8001}
+      API_DOCINTEL_URL: ${API_DOCINTEL_URL:-http://host.docker.internal:8002}
+      API_FORECAST_URL: ${API_FORECAST_URL:-http://host.docker.internal:8003}
+      API_SQLCOPILOT_URL: ${API_SQLCOPILOT_URL:-http://host.docker.internal:8004}
+      API_CVINSPECT_URL: ${API_CVINSPECT_URL:-http://host.docker.internal:8005}
+    restart: unless-stopped

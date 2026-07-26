@@ -814,90 +814,219 @@ function SqlDemo({ proxyId }: { proxyId: string }) {
   );
 }
 
+function loadHtmlImage(src: string): Promise<HTMLImageElement> {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => resolve(img);
+    img.onerror = () => reject(new Error("image_load_failed"));
+    img.src = src;
+  });
+}
+
+async function composeGradcamOverlay(sourceSrc: string, heatmapB64: string): Promise<string> {
+  const base = await loadHtmlImage(sourceSrc);
+  const heat = await loadHtmlImage(`data:image/png;base64,${heatmapB64}`);
+  const w = base.naturalWidth;
+  const h = base.naturalHeight;
+  const canvas = document.createElement("canvas");
+  canvas.width = w;
+  canvas.height = h;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return sourceSrc;
+  ctx.drawImage(base, 0, 0, w, h);
+
+  const heatCanvas = document.createElement("canvas");
+  heatCanvas.width = w;
+  heatCanvas.height = h;
+  const hctx = heatCanvas.getContext("2d");
+  if (!hctx) return canvas.toDataURL("image/png");
+  hctx.drawImage(heat, 0, 0, w, h);
+  const pixels = hctx.getImageData(0, 0, w, h);
+  for (let i = 0; i < pixels.data.length; i += 4) {
+    const v = pixels.data[i] / 255;
+    pixels.data[i] = 255;
+    pixels.data[i + 1] = Math.round(80 + 140 * (1 - v));
+    pixels.data[i + 2] = Math.round(30 * (1 - v));
+    pixels.data[i + 3] = Math.round(210 * v);
+  }
+  hctx.putImageData(pixels, 0, 0);
+  ctx.drawImage(heatCanvas, 0, 0);
+  return canvas.toDataURL("image/png");
+}
+
+async function composeMaskOverlay(sourceSrc: string, maskB64: string): Promise<string> {
+  const base = await loadHtmlImage(sourceSrc);
+  const mask = await loadHtmlImage(`data:image/png;base64,${maskB64}`);
+  const w = base.naturalWidth;
+  const h = base.naturalHeight;
+  const canvas = document.createElement("canvas");
+  canvas.width = w;
+  canvas.height = h;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return sourceSrc;
+  ctx.drawImage(base, 0, 0, w, h);
+
+  const maskCanvas = document.createElement("canvas");
+  maskCanvas.width = w;
+  maskCanvas.height = h;
+  const mctx = maskCanvas.getContext("2d");
+  if (!mctx) return canvas.toDataURL("image/png");
+  mctx.drawImage(mask, 0, 0, w, h);
+  const pixels = mctx.getImageData(0, 0, w, h);
+  for (let i = 0; i < pixels.data.length; i += 4) {
+    const on = pixels.data[i] > 20;
+    pixels.data[i] = 34;
+    pixels.data[i + 1] = 211;
+    pixels.data[i + 2] = 238;
+    pixels.data[i + 3] = on ? 160 : 0;
+  }
+  mctx.putImageData(pixels, 0, 0);
+  ctx.drawImage(maskCanvas, 0, 0);
+  return canvas.toDataURL("image/png");
+}
+
+async function composeBboxOverlay(
+  sourceSrc: string,
+  detections: { label: string; score: number; box: number[] }[],
+): Promise<string> {
+  const base = await loadHtmlImage(sourceSrc);
+  const w = base.naturalWidth;
+  const h = base.naturalHeight;
+  const canvas = document.createElement("canvas");
+  canvas.width = w;
+  canvas.height = h;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return sourceSrc;
+  ctx.drawImage(base, 0, 0);
+  const stroke = Math.max(2, Math.round(w / 64));
+  ctx.lineWidth = stroke;
+  ctx.font = `${Math.max(12, Math.round(w / 16))}px ui-monospace, monospace`;
+  for (const d of detections) {
+    const [x1, y1, x2, y2] = d.box;
+    const bw = x2 - x1;
+    const bh = y2 - y1;
+    ctx.strokeStyle = "#22d3ee";
+    ctx.fillStyle = "rgba(8, 145, 178, 0.18)";
+    ctx.fillRect(x1, y1, bw, bh);
+    ctx.strokeRect(x1, y1, bw, bh);
+    const tag = `${d.label} ${d.score.toFixed(3)}`;
+    const tw = ctx.measureText(tag).width + 8;
+    const th = Math.max(16, Math.round(w / 14));
+    ctx.fillStyle = "rgba(8, 145, 178, 0.92)";
+    ctx.fillRect(x1, Math.max(0, y1 - th), tw, th);
+    ctx.fillStyle = "#ecfeff";
+    ctx.fillText(tag, x1 + 4, Math.max(th - 4, y1 - 4));
+  }
+  return canvas.toDataURL("image/png");
+}
+
+type CvVisualKind = "gradcam" | "bbox" | "mask";
+
 function CvDemo({ proxyId }: { proxyId: string }) {
   const [file, setFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const [out, setOut] = useState("");
-  const [mask, setMask] = useState<string | null>(null);
-  const [cam, setCam] = useState<string | null>(null);
+  const [visual, setVisual] = useState<{ kind: CvVisualKind; src: string; title: string } | null>(null);
   const [busy, setBusy] = useState(false);
   const [status, setStatus] = useState<number | null>(null);
   const [ok, setOk] = useState<boolean | null>(null);
   const [data, setData] = useState<unknown>(null);
+  const [labelHint, setLabelHint] = useState<string | null>(null);
 
   function onFile(f: File | null) {
     setFile(f);
-    setMask(null);
-    setCam(null);
+    setVisual(null);
+    setLabelHint(null);
+    setOut("");
     setPreview((prev) => {
       if (prev) URL.revokeObjectURL(prev);
       return f ? URL.createObjectURL(f) : null;
     });
   }
 
-  async function call(path: string, explain = false, overrideFile?: File) {
+  async function call(path: string, explain = false, overrideFile?: File, overridePreview?: string) {
     const upload = overrideFile ?? file;
-    if (!upload) return;
+    const sourceSrc = overridePreview ?? preview;
+    if (!upload || !sourceSrc) return;
     setBusy(true);
-    const fd = new FormData();
-    fd.append("file", upload);
-    const qs = explain ? "?explain=true" : "";
-    const res = await apiFetch(proxyId, `${path}${qs}`, { method: "POST", body: fd });
-    setOut(pretty(res.data));
-    setStatus(res.status);
-    setOk(res.ok);
-    setData(res.data);
-    const payload = res.data as {
-      mask_png_b64?: string;
-      explanation?: { heatmap_png_b64?: string };
-    };
-    if (res.ok && payload.mask_png_b64) setMask(`data:image/png;base64,${payload.mask_png_b64}`);
-    if (res.ok && payload.explanation?.heatmap_png_b64) {
-      setCam(`data:image/png;base64,${payload.explanation.heatmap_png_b64}`);
-    }
-    setBusy(false);
-  }
-
-  async function runExample() {
-    setBusy(true);
+    setVisual(null);
+    setLabelHint(null);
     try {
-      const res = await fetch("/assets/samples/cv/img_0012.png");
-      const blob = await res.blob();
-      const sample = new File([blob], "img_0012.png", { type: "image/png" });
-      onFile(sample);
-      await call("/v1/classify", true, sample);
+      const fd = new FormData();
+      fd.append("file", upload);
+      const qs = explain ? "?explain=true" : "";
+      const res = await apiFetch(proxyId, `${path}${qs}`, { method: "POST", body: fd });
+      setOut(pretty(res.data));
+      setStatus(res.status);
+      setOk(res.ok);
+      setData(res.data);
+      if (!res.ok) return;
+
+      const payload = res.data as {
+        label?: string;
+        score?: number;
+        mask_png_b64?: string;
+        explanation?: { heatmap_png_b64?: string };
+        detections?: { label: string; score: number; box: number[] }[];
+      };
+
+      if (path.includes("classify") && payload.explanation?.heatmap_png_b64) {
+        const src = await composeGradcamOverlay(sourceSrc, payload.explanation.heatmap_png_b64);
+        setVisual({ kind: "gradcam", src, title: "Grad-CAM overlay" });
+        if (payload.label != null && payload.score != null) {
+          setLabelHint(`${payload.label} · ${(payload.score * 100).toFixed(1)}%`);
+        }
+      } else if (path.includes("detect") && payload.detections) {
+        const src = await composeBboxOverlay(sourceSrc, payload.detections);
+        setVisual({
+          kind: "bbox",
+          src,
+          title: payload.detections.length ? "Bounding boxes" : "No detections above threshold",
+        });
+        setLabelHint(
+          payload.detections.length
+            ? `${payload.detections.length} box${payload.detections.length === 1 ? "" : "es"}`
+            : "0 detections",
+        );
+      } else if (path.includes("segment") && payload.mask_png_b64) {
+        const src = await composeMaskOverlay(sourceSrc, payload.mask_png_b64);
+        setVisual({ kind: "mask", src, title: "Mask overlay" });
+        setLabelHint("Segmentation mask on source");
+      }
     } finally {
       setBusy(false);
     }
   }
 
+  async function runExample() {
+    const res = await fetch("/assets/samples/cv/img_0012.png");
+    const blob = await res.blob();
+    const sample = new File([blob], "img_0012.png", { type: "image/png" });
+    const objectUrl = URL.createObjectURL(sample);
+    setFile(sample);
+    setVisual(null);
+    setLabelHint(null);
+    setOut("");
+    setPreview((prev) => {
+      if (prev) URL.revokeObjectURL(prev);
+      return objectUrl;
+    });
+    await call("/v1/classify", true, sample, objectUrl);
+  }
+
   return (
-    <div className="grid gap-6 lg:grid-cols-2">
-      <div className="space-y-4 rounded-xl border border-line bg-elev p-4">
-        <Button onClick={runExample} disabled={busy} variant="primary">
-          {busy ? "Running…" : "Run Example"}
-        </Button>
-        <input
-          type="file"
-          accept="image/png,image/jpeg"
-          aria-label="Inspection image upload"
-          onChange={(e) => onFile(e.target.files?.[0] ?? null)}
-          className="block w-full text-sm text-muted file:mr-3 file:rounded-md file:border-0 file:bg-accent-dim file:px-3 file:py-1.5 file:text-white"
-        />
-        <p className="text-xs text-muted">
-          Run Example loads sample{" "}
-          <a className="text-accent hover:underline" href="/assets/samples/cv/img_0012.png" target="_blank" rel="noreferrer">
-            img_0012.png
-          </a>{" "}
-          and classifies with Grad-CAM.
+    <div className="space-y-4">
+      <div className="rounded-xl border border-line bg-elev p-4">
+        <p className="mb-3 text-sm text-muted">
+          Capability focus: <span className="text-ink">multi-task inspection</span> — classify with Grad-CAM,
+          detect with boxes, segment with mask overlay.
         </p>
-        {preview && (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={preview} alt="Upload preview" className="max-h-48 rounded-lg border border-line object-contain" />
-        )}
-        <div className="flex flex-wrap gap-2">
+        <div className="mb-3 flex flex-wrap gap-2">
+          <Button onClick={runExample} disabled={busy} variant="primary">
+            {busy ? "Running…" : "Run Example"}
+          </Button>
           <Button onClick={() => call("/v1/classify", true)} disabled={!file || busy} variant="ghost">
-            Classify + Grad-CAM
+            Classify
           </Button>
           <Button onClick={() => call("/v1/detect")} disabled={!file || busy} variant="ghost">
             Detect
@@ -906,17 +1035,60 @@ function CvDemo({ proxyId }: { proxyId: string }) {
             Segment
           </Button>
         </div>
-        <div className="flex flex-wrap gap-3">
-          {cam && (
+        <input
+          type="file"
+          accept="image/png,image/jpeg"
+          aria-label="Inspection image upload"
+          onChange={(e) => onFile(e.target.files?.[0] ?? null)}
+          className="block w-full text-sm text-muted file:mr-3 file:rounded-md file:border-0 file:bg-accent-dim file:px-3 file:py-1.5 file:text-white"
+        />
+        <p className="mt-2 text-xs text-muted">
+          Run Example loads sample{" "}
+          <a className="text-accent hover:underline" href="/assets/samples/cv/img_0012.png" target="_blank" rel="noreferrer">
+            img_0012.png
+          </a>{" "}
+          and shows Grad-CAM on the source image.
+        </p>
+      </div>
+
+      <div className="grid gap-4 lg:grid-cols-2">
+        <div className="space-y-2 rounded-xl border border-line bg-black/40 p-3">
+          <p className="text-[11px] font-semibold tracking-wide text-accent uppercase">Original</p>
+          {preview ? (
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={cam} alt="Grad-CAM explanation heatmap" className="h-28 rounded border border-line" />
+            <img src={preview} alt="Original inspection image" className="max-h-72 w-full object-contain" />
+          ) : (
+            <p className="py-16 text-center text-sm text-muted">Upload or Run Example</p>
           )}
-          {mask && (
+        </div>
+        <div className="space-y-2 rounded-xl border border-line bg-black/40 p-3">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <p className="text-[11px] font-semibold tracking-wide text-accent uppercase">
+              {visual?.title ?? "Visual result"}
+            </p>
+            {labelHint && <span className="font-mono text-[11px] text-muted">{labelHint}</span>}
+          </div>
+          {visual ? (
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={mask} alt="Segmentation mask" className="h-28 rounded border border-line" />
+            <img
+              src={visual.src}
+              alt={
+                visual.kind === "gradcam"
+                  ? "Grad-CAM overlay on original"
+                  : visual.kind === "bbox"
+                    ? "Detection bounding boxes on original"
+                    : "Segmentation mask overlay on original"
+              }
+              className="max-h-72 w-full object-contain"
+            />
+          ) : (
+            <p className="py-16 text-center text-sm text-muted">
+              Classify → Grad-CAM · Detect → boxes · Segment → mask
+            </p>
           )}
         </div>
       </div>
+
       <ResultPanel out={out} status={status} ok={ok} data={data} empty="// CV response JSON" />
     </div>
   );

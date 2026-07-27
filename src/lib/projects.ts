@@ -140,32 +140,32 @@ export const PROJECTS: ProjectConfig[] = [
       {
         label: "Docker",
         detail: "Dockerfile",
-        href: "https://github.com/ahmadian-dev/predictive-maintenance-ml-platform/blob/main/Dockerfile",
+        href: "https://github.com/ahmadian-dev/predictive-maintenance-ml-platform",
       },
       {
         label: "CI",
         detail: "GitHub Actions",
-        href: "https://github.com/ahmadian-dev/predictive-maintenance-ml-platform/tree/main/.github/workflows",
+        href: "https://github.com/ahmadian-dev/predictive-maintenance-ml-platform",
       },
       {
         label: "MLflow",
         detail: "Experiment tracking",
-        href: "https://github.com/ahmadian-dev/predictive-maintenance-ml-platform/blob/main/docs/16_MLOPS_PIPELINE.md",
+        href: "https://github.com/ahmadian-dev/predictive-maintenance-ml-platform",
       },
       {
         label: "Artifacts",
         detail: "Production model bundle",
-        href: "https://github.com/ahmadian-dev/predictive-maintenance-ml-platform/tree/main/models/artifacts/production",
+        href: "https://github.com/ahmadian-dev/predictive-maintenance-ml-platform",
       },
       {
         label: "OpenAPI",
         detail: "FastAPI /docs",
-        href: "https://github.com/ahmadian-dev/predictive-maintenance-ml-platform/blob/main/docs/10_API_SPECIFICATION.md",
+        href: "https://github.com/ahmadian-dev/predictive-maintenance-ml-platform",
       },
       {
         label: "Docs",
         detail: "Engineering docs 00–28",
-        href: "https://github.com/ahmadian-dev/predictive-maintenance-ml-platform/tree/main/docs",
+        href: "https://github.com/ahmadian-dev/predictive-maintenance-ml-platform",
       },
     ],
     integrity: [
@@ -257,32 +257,32 @@ export const PROJECTS: ProjectConfig[] = [
       {
         label: "RAG pipeline",
         detail: "Custom retrieval stack",
-        href: "https://github.com/ahmadian-dev/enterprise-document-intelligence-platform/blob/main/docs/13_DOCUMENT_PROCESSING_PIPELINE.md",
+        href: "https://github.com/ahmadian-dev/enterprise-document-intelligence-platform",
       },
       {
         label: "Evaluation",
         detail: "Fixture harness",
-        href: "https://github.com/ahmadian-dev/enterprise-document-intelligence-platform/tree/main/data/eval",
+        href: "https://github.com/ahmadian-dev/enterprise-document-intelligence-platform",
       },
       {
         label: "Docker",
         detail: "Dockerfile",
-        href: "https://github.com/ahmadian-dev/enterprise-document-intelligence-platform/blob/main/Dockerfile",
+        href: "https://github.com/ahmadian-dev/enterprise-document-intelligence-platform",
       },
       {
         label: "CI",
         detail: "GitHub Actions",
-        href: "https://github.com/ahmadian-dev/enterprise-document-intelligence-platform/tree/main/.github/workflows",
+        href: "https://github.com/ahmadian-dev/enterprise-document-intelligence-platform",
       },
       {
         label: "OpenAPI",
         detail: "FastAPI contracts",
-        href: "https://github.com/ahmadian-dev/enterprise-document-intelligence-platform/blob/main/docs/10_API_SPECIFICATION.md",
+        href: "https://github.com/ahmadian-dev/enterprise-document-intelligence-platform",
       },
       {
         label: "Docs",
         detail: "Engineering docs 00–28",
-        href: "https://github.com/ahmadian-dev/enterprise-document-intelligence-platform/tree/main/docs",
+        href: "https://github.com/ahmadian-dev/enterprise-document-intelligence-platform",
       },
     ],
     integrity: [
@@ -367,22 +367,22 @@ export const PROJECTS: ProjectConfig[] = [
       {
         label: "Chronological split",
         detail: "Leakage-safe holdout",
-        href: "https://github.com/ahmadian-dev/forecast-platform/blob/main/docs/14_MODEL_DEVELOPMENT.md",
+        href: "https://github.com/ahmadian-dev/forecast-platform",
       },
       {
         label: "MLflow",
         detail: "Experiment logging",
-        href: "https://github.com/ahmadian-dev/forecast-platform/blob/main/docs/16_MLOPS_PIPELINE.md",
+        href: "https://github.com/ahmadian-dev/forecast-platform",
       },
       {
         label: "Docker",
         detail: "Dockerfile",
-        href: "https://github.com/ahmadian-dev/forecast-platform/blob/main/Dockerfile",
+        href: "https://github.com/ahmadian-dev/forecast-platform",
       },
       {
         label: "CI",
         detail: "GitHub Actions",
-        href: "https://github.com/ahmadian-dev/forecast-platform/tree/main/.github/workflows",
+        href: "https://github.com/ahmadian-dev/forecast-platform",
       },
       {
         label: "Dashboard",
@@ -392,7 +392,7 @@ export const PROJECTS: ProjectConfig[] = [
       {
         label: "Docs",
         detail: "Engineering docs 00–28",
-        href: "https://github.com/ahmadian-dev/forecast-platform/tree/main/docs",
+        href: "https://github.com/ahmadian-dev/forecast-platform",
       },
     ],
     integrity: [
@@ -484,32 +484,32 @@ export const PROJECTS: ProjectConfig[] = [
       {
         label: "Validator",
         detail: "SELECT-only safety",
-        href: "https://github.com/ahmadian-dev/ai-sql-copilot/blob/main/docs/13_SQL_GENERATION_PIPELINE.md",
+        href: "https://github.com/ahmadian-dev/ai-sql-copilot",
       },
       {
         label: "Schema catalog",
         detail: "Introspection",
-        href: "https://github.com/ahmadian-dev/ai-sql-copilot/blob/main/docs/09_DATABASE_DESIGN.md",
+        href: "https://github.com/ahmadian-dev/ai-sql-copilot",
       },
       {
         label: "Docker",
         detail: "Dockerfile",
-        href: "https://github.com/ahmadian-dev/ai-sql-copilot/blob/main/Dockerfile",
+        href: "https://github.com/ahmadian-dev/ai-sql-copilot",
       },
       {
         label: "CI",
         detail: "GitHub Actions",
-        href: "https://github.com/ahmadian-dev/ai-sql-copilot/tree/main/.github/workflows",
+        href: "https://github.com/ahmadian-dev/ai-sql-copilot",
       },
       {
         label: "Evaluation",
         detail: "Fixture harness",
-        href: "https://github.com/ahmadian-dev/ai-sql-copilot/tree/main/tests",
+        href: "https://github.com/ahmadian-dev/ai-sql-copilot",
       },
       {
         label: "Docs",
         detail: "Engineering docs 00–28",
-        href: "https://github.com/ahmadian-dev/ai-sql-copilot/tree/main/docs",
+        href: "https://github.com/ahmadian-dev/ai-sql-copilot",
       },
     ],
     integrity: [
@@ -596,32 +596,32 @@ export const PROJECTS: ProjectConfig[] = [
       {
         label: "PyTorch",
         detail: "Multi-task models",
-        href: "https://github.com/ahmadian-dev/computer-vision-inspection-platform/blob/main/docs/13_COMPUTER_VISION_PIPELINE.md",
+        href: "https://github.com/ahmadian-dev/computer-vision-inspection-platform",
       },
       {
         label: "Grad-CAM",
         detail: "Explainability",
-        href: "https://github.com/ahmadian-dev/computer-vision-inspection-platform/blob/main/docs/08_UI_UX_SPECIFICATION.md",
+        href: "https://github.com/ahmadian-dev/computer-vision-inspection-platform",
       },
       {
         label: "Docker",
         detail: "Dockerfile",
-        href: "https://github.com/ahmadian-dev/computer-vision-inspection-platform/blob/main/Dockerfile",
+        href: "https://github.com/ahmadian-dev/computer-vision-inspection-platform",
       },
       {
         label: "CI",
         detail: "GitHub Actions",
-        href: "https://github.com/ahmadian-dev/computer-vision-inspection-platform/tree/main/.github/workflows",
+        href: "https://github.com/ahmadian-dev/computer-vision-inspection-platform",
       },
       {
         label: "MLflow",
         detail: "Metrics logging",
-        href: "https://github.com/ahmadian-dev/computer-vision-inspection-platform/blob/main/docs/16_MLOPS_PIPELINE.md",
+        href: "https://github.com/ahmadian-dev/computer-vision-inspection-platform",
       },
       {
         label: "Docs",
         detail: "Engineering docs 00–28",
-        href: "https://github.com/ahmadian-dev/computer-vision-inspection-platform/tree/main/docs",
+        href: "https://github.com/ahmadian-dev/computer-vision-inspection-platform",
       },
     ],
     integrity: [

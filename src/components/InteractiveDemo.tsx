@@ -404,7 +404,7 @@ function DocintelDemo({ proxyId }: { proxyId: string }) {
 function ForecastDemo({ proxyId }: { proxyId: string }) {
   const [horizon, setHorizon] = useState(14);
   const [storeId, setStoreId] = useState("S01");
-  const [skuId, setSkuId] = useState("SKU01");
+  const [skuId, setSkuId] = useState("SKU-100");
   const [points, setPoints] = useState<{ date: string; yhat: number }[]>([]);
   const [meta, setMeta] = useState("");
   const [busy, setBusy] = useState(false);

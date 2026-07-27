@@ -1,3 +1,4 @@
+import { projectHref } from "@/lib/project-routes";
 export type ProjectSlug =
   | "predictive-maintenance"
   | "document-intelligence"
@@ -175,27 +176,12 @@ export const PROJECTS: ProjectConfig[] = [
       "Optional X-API-Key; disabled when API_KEY=change-me",
     ],
     repoLinks: [
-      { label: "README", href: "https://github.com/ahmadian-dev/predictive-maintenance-ml-platform#readme" },
-      {
-        label: "Architecture",
-        href: "https://github.com/ahmadian-dev/predictive-maintenance-ml-platform/blob/main/presentation/architecture/architecture.html",
-      },
-      {
-        label: "Presentation",
-        href: "https://github.com/ahmadian-dev/predictive-maintenance-ml-platform/tree/main/presentation",
-      },
-      {
-        label: "Dashboard",
-        href: "https://github.com/ahmadian-dev/predictive-maintenance-ml-platform/blob/main/presentation/dashboard/index.html",
-      },
-      {
-        label: "Docs",
-        href: "https://github.com/ahmadian-dev/predictive-maintenance-ml-platform/tree/main/docs",
-      },
-      {
-        label: "Release v1.0.0",
-        href: "https://github.com/ahmadian-dev/predictive-maintenance-ml-platform/releases/tag/v1.0.0",
-      },
+      { label: "README", href: projectHref("predictive-maintenance", "readme") },
+      { label: "Architecture", href: projectHref("predictive-maintenance", "architecture") },
+      { label: "Presentation", href: projectHref("predictive-maintenance", "presentation") },
+      { label: "Dashboard", href: projectHref("predictive-maintenance", "dashboard") },
+      { label: "Repository", href: "https://github.com/ahmadian-dev/predictive-maintenance-ml-platform" },
+      { label: "Release v1.0.0", href: "https://github.com/ahmadian-dev/predictive-maintenance-ml-platform/releases/tag/v1.0.0" },
     ],
     interactive: "predmaint",
   },
@@ -307,27 +293,12 @@ export const PROJECTS: ProjectConfig[] = [
       "Optional API key gate for demos",
     ],
     repoLinks: [
-      { label: "README", href: "https://github.com/ahmadian-dev/enterprise-document-intelligence-platform#readme" },
-      {
-        label: "Architecture",
-        href: "https://github.com/ahmadian-dev/enterprise-document-intelligence-platform/blob/main/presentation/architecture/architecture.html",
-      },
-      {
-        label: "Presentation",
-        href: "https://github.com/ahmadian-dev/enterprise-document-intelligence-platform/tree/main/presentation",
-      },
-      {
-        label: "Dashboard",
-        href: "https://github.com/ahmadian-dev/enterprise-document-intelligence-platform/blob/main/presentation/dashboard/index.html",
-      },
-      {
-        label: "Docs",
-        href: "https://github.com/ahmadian-dev/enterprise-document-intelligence-platform/tree/main/docs",
-      },
-      {
-        label: "Release v1.0.0",
-        href: "https://github.com/ahmadian-dev/enterprise-document-intelligence-platform/releases/tag/v1.0.0",
-      },
+      { label: "README", href: projectHref("document-intelligence", "readme") },
+      { label: "Architecture", href: projectHref("document-intelligence", "architecture") },
+      { label: "Presentation", href: projectHref("document-intelligence", "presentation") },
+      { label: "Dashboard", href: projectHref("document-intelligence", "dashboard") },
+      { label: "Repository", href: "https://github.com/ahmadian-dev/enterprise-document-intelligence-platform" },
+      { label: "Release v1.0.0", href: "https://github.com/ahmadian-dev/enterprise-document-intelligence-platform/releases/tag/v1.0.0" },
     ],
     interactive: "docintel",
   },
@@ -416,7 +387,7 @@ export const PROJECTS: ProjectConfig[] = [
       {
         label: "Dashboard",
         detail: "Performance pack",
-        href: "https://github.com/ahmadian-dev/forecast-platform/blob/main/presentation/dashboard/index.html",
+        href: "/projects/business-forecasting/dashboard",
       },
       {
         label: "Docs",
@@ -432,17 +403,11 @@ export const PROJECTS: ProjectConfig[] = [
       "Real metrics only after training runs",
     ],
     repoLinks: [
-      { label: "README", href: "https://github.com/ahmadian-dev/forecast-platform#readme" },
-      {
-        label: "Architecture",
-        href: "https://github.com/ahmadian-dev/forecast-platform/blob/main/presentation/architecture/architecture.html",
-      },
-      { label: "Presentation", href: "https://github.com/ahmadian-dev/forecast-platform/tree/main/presentation" },
-      {
-        label: "Dashboard",
-        href: "https://github.com/ahmadian-dev/forecast-platform/blob/main/presentation/dashboard/index.html",
-      },
-      { label: "Docs", href: "https://github.com/ahmadian-dev/forecast-platform/tree/main/docs" },
+      { label: "README", href: projectHref("business-forecasting", "readme") },
+      { label: "Architecture", href: projectHref("business-forecasting", "architecture") },
+      { label: "Presentation", href: projectHref("business-forecasting", "presentation") },
+      { label: "Dashboard", href: projectHref("business-forecasting", "dashboard") },
+      { label: "Repository", href: "https://github.com/ahmadian-dev/forecast-platform" },
       { label: "Release v1.0.0", href: "https://github.com/ahmadian-dev/forecast-platform/releases/tag/v1.0.0" },
     ],
     interactive: "forecast",
@@ -555,17 +520,11 @@ export const PROJECTS: ProjectConfig[] = [
       "Unsafe SQL never reaches execute",
     ],
     repoLinks: [
-      { label: "README", href: "https://github.com/ahmadian-dev/ai-sql-copilot#readme" },
-      {
-        label: "Architecture",
-        href: "https://github.com/ahmadian-dev/ai-sql-copilot/blob/main/presentation/architecture/architecture.html",
-      },
-      { label: "Presentation", href: "https://github.com/ahmadian-dev/ai-sql-copilot/tree/main/presentation" },
-      {
-        label: "Dashboard",
-        href: "https://github.com/ahmadian-dev/ai-sql-copilot/blob/main/presentation/dashboard/index.html",
-      },
-      { label: "Docs", href: "https://github.com/ahmadian-dev/ai-sql-copilot/tree/main/docs" },
+      { label: "README", href: projectHref("ai-sql-copilot", "readme") },
+      { label: "Architecture", href: projectHref("ai-sql-copilot", "architecture") },
+      { label: "Presentation", href: projectHref("ai-sql-copilot", "presentation") },
+      { label: "Dashboard", href: projectHref("ai-sql-copilot", "dashboard") },
+      { label: "Repository", href: "https://github.com/ahmadian-dev/ai-sql-copilot" },
       { label: "Release v1.0.0", href: "https://github.com/ahmadian-dev/ai-sql-copilot/releases/tag/v1.0.0" },
     ],
     interactive: "sqlcopilot",
@@ -673,27 +632,12 @@ export const PROJECTS: ProjectConfig[] = [
       "Real metrics only after training runs",
     ],
     repoLinks: [
-      { label: "README", href: "https://github.com/ahmadian-dev/computer-vision-inspection-platform#readme" },
-      {
-        label: "Architecture",
-        href: "https://github.com/ahmadian-dev/computer-vision-inspection-platform/blob/main/presentation/architecture/architecture.html",
-      },
-      {
-        label: "Presentation",
-        href: "https://github.com/ahmadian-dev/computer-vision-inspection-platform/tree/main/presentation",
-      },
-      {
-        label: "Dashboard",
-        href: "https://github.com/ahmadian-dev/computer-vision-inspection-platform/blob/main/presentation/dashboard/index.html",
-      },
-      {
-        label: "Docs",
-        href: "https://github.com/ahmadian-dev/computer-vision-inspection-platform/tree/main/docs",
-      },
-      {
-        label: "Release v1.0.0",
-        href: "https://github.com/ahmadian-dev/computer-vision-inspection-platform/releases/tag/v1.0.0",
-      },
+      { label: "README", href: projectHref("computer-vision-inspection", "readme") },
+      { label: "Architecture", href: projectHref("computer-vision-inspection", "architecture") },
+      { label: "Presentation", href: projectHref("computer-vision-inspection", "presentation") },
+      { label: "Dashboard", href: projectHref("computer-vision-inspection", "dashboard") },
+      { label: "Repository", href: "https://github.com/ahmadian-dev/computer-vision-inspection-platform" },
+      { label: "Release v1.0.0", href: "https://github.com/ahmadian-dev/computer-vision-inspection-platform/releases/tag/v1.0.0" },
     ],
     interactive: "cvinspect",
   },

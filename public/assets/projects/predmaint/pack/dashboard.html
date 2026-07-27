@@ -1,0 +1,126 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Performance Dashboard — Predictive Maintenance</title>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Serif:wght@500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <style>
+    :root {
+      --bg: #F7F8FA; --elev: #fff; --ink: #0F172A; --muted: #475569;
+      --line: #E2E8F0; --accent: #0E7490; --slate: #64748B;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: "IBM Plex Sans", system-ui, sans-serif; background: var(--bg); color: var(--ink); }
+    header {
+      background: #0F172A; color: #F8FAFC; padding: 1.75rem 6vw;
+      border-bottom: 3px solid var(--accent);
+    }
+    header h1 { font-family: "IBM Plex Serif", Georgia, serif; font-size: 1.5rem; font-weight: 600; }
+    header p { color: #94A3B8; margin-top: 0.35rem; font-size: 0.95rem; }
+    .mark { font-size: 0.7rem; letter-spacing: 0.06em; text-transform: uppercase; color: #A7F3D0; margin-bottom: 0.5rem; }
+    main { padding: 2rem 6vw 3rem; max-width: 1100px; margin: 0 auto; }
+    .kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 1.5rem; }
+    @media (max-width: 800px) { .kpis { grid-template-columns: 1fr 1fr; } }
+    .kpi { background: var(--elev); border: 1px solid var(--line); padding: 1rem 1.15rem; }
+    .kpi .l { font-size: 0.75rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }
+    .kpi .v { font-family: "IBM Plex Mono", monospace; font-size: 1.7rem; color: var(--accent); margin-top: 0.2rem; }
+    .panel {
+      background: var(--elev); border: 1px solid var(--line); padding: 1.25rem 1.35rem;
+      box-shadow: 0 8px 24px rgba(15,23,42,0.06); margin-bottom: 1.25rem;
+    }
+    .panel h2 { font-size: 1rem; font-weight: 600; margin-bottom: 1rem; }
+    .grid2 { display: grid; grid-template-columns: 1.2fr 1fr; gap: 1.25rem; }
+    @media (max-width: 900px) { .grid2 { grid-template-columns: 1fr; } }
+    table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+    th, td { text-align: left; padding: 0.55rem 0.4rem; border-bottom: 1px solid var(--line); }
+    th { color: var(--muted); font-weight: 500; font-size: 0.75rem; text-transform: uppercase; }
+    .mono { font-family: "IBM Plex Mono", monospace; }
+    .note { font-size: 0.85rem; color: var(--muted); margin-top: 0.75rem; }
+    canvas { max-height: 280px; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="mark">Portfolio Demo · Released</div>
+    <h1>Performance Dashboard</h1>
+    <p>Production ML Platform for Predictive Maintenance · Test split · Model 20260726T111950Z · AI4I 2020</p>
+  </header>
+  <main>
+    <div class="kpis">
+      <div class="kpi"><div class="l">Primary F1</div><div class="v">0.800</div></div>
+      <div class="kpi"><div class="l">Primary Precision</div><div class="v">0.952</div></div>
+      <div class="kpi"><div class="l">Primary Recall</div><div class="v">0.690</div></div>
+      <div class="kpi"><div class="l">ROC-AUC</div><div class="v">0.944</div></div>
+    </div>
+
+    <div class="grid2">
+      <div class="panel">
+        <h2>Baseline vs Primary — F1 (test)</h2>
+        <canvas id="f1Chart"></canvas>
+        <p class="note">Figure 2. Metric comparison. Source: reports/metrics/test_metrics.json</p>
+      </div>
+      <div class="panel">
+        <h2>Metric table</h2>
+        <table>
+          <thead>
+            <tr><th>Model</th><th>Precision</th><th>Recall</th><th>F1</th><th>ROC-AUC</th><th>PR-AUC</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Baseline LogReg</td>
+              <td class="mono">0.571</td><td class="mono">0.138</td><td class="mono">0.222</td>
+              <td class="mono">0.901</td><td class="mono">0.323</td>
+            </tr>
+            <tr>
+              <td><strong>Primary LightGBM</strong></td>
+              <td class="mono">0.952</td><td class="mono">0.690</td><td class="mono">0.800</td>
+              <td class="mono">0.944</td><td class="mono">0.781</td>
+            </tr>
+          </tbody>
+        </table>
+        <p class="note">
+          Split: chronological by UDI (70/15/15) · Threshold tuned on validation F1 (0.815) ·
+          Positive rate ≈ 1.9% on test · Dataset: synthetic AI4I (CC BY 4.0)
+        </p>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>Evaluation context</h2>
+      <table>
+        <tr><th>Item</th><th>Value</th></tr>
+        <tr><td>Primary metric</td><td class="mono">F1</td></tr>
+        <tr><td>Leakage controls</td><td>Excluded TWF, HDF, PWF, OSF, RNF</td></tr>
+        <tr><td>Seed</td><td class="mono">42</td></tr>
+        <tr><td>Serving alias</td><td class="mono">models/artifacts/production</td></tr>
+      </table>
+    </div>
+  </main>
+  <script>
+    new Chart(document.getElementById("f1Chart"), {
+      type: "bar",
+      data: {
+        labels: ["Baseline LogReg", "Primary LightGBM"],
+        datasets: [{
+          label: "F1",
+          data: [0.222, 0.800],
+          backgroundColor: ["#64748B", "#0E7490"],
+          borderWidth: 0,
+          barThickness: 56
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: { legend: { display: false } },
+        scales: {
+          y: { min: 0, max: 1, grid: { color: "#E2E8F0" } },
+          x: { grid: { display: false } }
+        }
+      }
+    });
+  </script>
+</body>
+</html>
+

@@ -1,0 +1,92 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>90s Demo Recorder Slides</title>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Serif:wght@500;600&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet" />
+  <style>
+    html, body { margin:0; height:100%; background:#0F172A; color:#F8FAFC; font-family:"IBM Plex Sans",sans-serif; overflow:hidden; }
+    .slide {
+      position:absolute; inset:0; display:none; flex-direction:column; justify-content:center;
+      padding:6vw; background:
+        radial-gradient(ellipse at 15% 10%, rgba(14,116,144,.35), transparent 45%),
+        #0F172A;
+    }
+    .slide.active { display:flex; }
+    .eyebrow { color:#67E8F9; letter-spacing:.08em; text-transform:uppercase; font-size:.85rem; font-weight:600; margin-bottom:1rem; }
+    h1 { font-family:"IBM Plex Serif",Georgia,serif; font-size:clamp(2rem,4.5vw,3.4rem); max-width:16ch; line-height:1.15; margin:0 0 1rem; }
+    p { font-size:clamp(1.1rem,2vw,1.45rem); color:#CBD5E1; max-width:34ch; margin:0; }
+    .metrics { font-family:"IBM Plex Mono",monospace; font-size:clamp(1.4rem,3vw,2.2rem); color:#67E8F9; margin-top:1rem; }
+    .progress {
+      position:fixed; left:0; bottom:0; height:4px; background:#0E7490; width:0%;
+      transition: width .2s linear;
+    }
+    .hint { position:fixed; right:1.5rem; bottom:1.5rem; color:#64748B; font-size:.8rem; }
+    img.arch { max-width:min(900px,80vw); margin-top:1.5rem; border:1px solid #334155; }
+  </style>
+</head>
+<body>
+  <div class="slide active" data-sec="8">
+    <div class="eyebrow">Released · Portfolio Demo</div>
+    <h1>Production ML Platform for Predictive Maintenance</h1>
+    <p>Mohammad Ahmadian · AI / Machine Learning Engineer</p>
+  </div>
+  <div class="slide" data-sec="10">
+    <div class="eyebrow">Problem</div>
+    <h1>Predict machine failure risk</h1>
+    <p>From industrial sensor features — so maintenance can prioritize inspections.</p>
+  </div>
+  <div class="slide" data-sec="14">
+    <div class="eyebrow">Architecture</div>
+    <h1>Data → Model → API</h1>
+    <p>Validate · features · baseline + LightGBM · MLflow · FastAPI · logs</p>
+    <img class="arch" src="/assets/projects/predmaint/architecture-diagram.png" alt="Architecture" />
+  </div>
+  <div class="slide" data-sec="13">
+    <div class="eyebrow">Integrity</div>
+    <h1>Leakage-safe evaluation</h1>
+    <p>Chronological UDI split · failure flags excluded · baseline always reported</p>
+  </div>
+  <div class="slide" data-sec="20">
+    <div class="eyebrow">Results · Held-out test</div>
+    <h1>Primary beats baseline</h1>
+    <div class="metrics">F1 0.80 vs 0.22 · ROC-AUC 0.94 · PR-AUC 0.78</div>
+  </div>
+  <div class="slide" data-sec="17">
+    <div class="eyebrow">Inference</div>
+    <h1>POST /v1/predict</h1>
+    <p>OpenAPI docs · model_version in every response · optional API key</p>
+  </div>
+  <div class="slide" data-sec="8">
+    <div class="eyebrow">Limitations · Contact</div>
+    <h1>Synthetic AI4I · honest docs</h1>
+    <p>github.com/ahmadian-dev · mohammad.ahmadian.dev@gmail.com</p>
+  </div>
+  <div class="progress" id="bar"></div>
+  <div class="hint">Space = next · R = restart · autoplays for ~90s</div>
+  <script>
+    const slides = [...document.querySelectorAll(".slide")];
+    let i = 0, t0 = performance.now(), total = slides.reduce((s, el) => s + (+el.dataset.sec) * 1000, 0);
+    function show(n) {
+      slides.forEach((s, idx) => s.classList.toggle("active", idx === n));
+      i = n;
+    }
+    function advance() {
+      const elapsed = performance.now() - t0;
+      document.getElementById("bar").style.width = Math.min(100, (elapsed / total) * 100) + "%";
+      let acc = 0;
+      for (let k = 0; k < slides.length; k++) {
+        acc += (+slides[k].dataset.sec) * 1000;
+        if (elapsed < acc) { if (i !== k) show(k); return; }
+      }
+      show(slides.length - 1);
+    }
+    setInterval(advance, 100);
+    window.addEventListener("keydown", (e) => {
+      if (e.code === "Space") { e.preventDefault(); show(Math.min(i + 1, slides.length - 1)); }
+      if (e.key.toLowerCase() === "r") { t0 = performance.now(); show(0); }
+    });
+  </script>
+</body>
+</html>
+

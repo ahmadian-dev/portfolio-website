@@ -1,0 +1,270 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Production ML Platform for Predictive Maintenance — Demo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Serif:wght@500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #F7F8FA;
+      --elev: #FFFFFF;
+      --ink: #0F172A;
+      --muted: #475569;
+      --line: #E2E8F0;
+      --accent: #0E7490;
+      --accent-soft: #ECFEFF;
+      --success: #047857;
+      --code: #0B1220;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: "IBM Plex Sans", system-ui, sans-serif;
+      color: var(--ink);
+      background: var(--bg);
+      line-height: 1.5;
+    }
+    .hero {
+      min-height: 100vh;
+      background:
+        linear-gradient(180deg, rgba(15,23,42,0.92), rgba(15,23,42,0.78)),
+        radial-gradient(ellipse at 20% 20%, rgba(14,116,144,0.35), transparent 50%),
+        #0F172A;
+      color: #F8FAFC;
+      padding: 2.5rem 6vw 4rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(248,250,252,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(248,250,252,0.04) 1px, transparent 1px);
+      background-size: 48px 48px;
+      pointer-events: none;
+    }
+    .hero-inner { position: relative; max-width: 1100px; }
+    .brand {
+      font-family: "IBM Plex Serif", Georgia, serif;
+      font-size: clamp(2.4rem, 5vw, 3.6rem);
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      margin-bottom: 0.75rem;
+    }
+    .title {
+      font-size: clamp(1.15rem, 2.2vw, 1.45rem);
+      font-weight: 500;
+      color: #E2E8F0;
+      margin-bottom: 1rem;
+      max-width: 36ch;
+    }
+    .lede {
+      color: #94A3B8;
+      max-width: 52ch;
+      margin-bottom: 1.75rem;
+      font-size: 1.05rem;
+    }
+    .status {
+      display: inline-block;
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: #A7F3D0;
+      border: 1px solid #059669;
+      padding: 0.2rem 0.55rem;
+      margin-bottom: 1.25rem;
+    }
+    .cta { display: flex; flex-wrap: wrap; gap: 0.75rem; }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.95rem;
+      padding: 0.7rem 1.1rem;
+      border-radius: 2px;
+    }
+    .btn-primary { background: var(--accent); color: #fff; }
+    .btn-ghost { border: 1px solid #64748B; color: #E2E8F0; }
+    section {
+      padding: 4rem 6vw;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+    h2 {
+      font-family: "IBM Plex Serif", Georgia, serif;
+      font-size: 1.75rem;
+      margin-bottom: 0.5rem;
+    }
+    .section-lede { color: var(--muted); margin-bottom: 1.75rem; max-width: 60ch; }
+    .kpis {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1rem;
+    }
+    @media (max-width: 800px) {
+      .kpis { grid-template-columns: 1fr 1fr; }
+    }
+    .kpi {
+      background: var(--elev);
+      border: 1px solid var(--line);
+      padding: 1.1rem 1.2rem;
+    }
+    .kpi .label { font-size: 0.8rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }
+    .kpi .value { font-family: "IBM Plex Mono", monospace; font-size: 1.75rem; font-weight: 500; color: var(--accent); margin-top: 0.25rem; }
+    .kpi .note { font-size: 0.8rem; color: var(--muted); margin-top: 0.35rem; }
+    .split {
+      display: grid;
+      grid-template-columns: 1.2fr 1fr;
+      gap: 2rem;
+      align-items: start;
+    }
+    @media (max-width: 900px) { .split { grid-template-columns: 1fr; } }
+    img.arch {
+      width: 100%;
+      border: 1px solid var(--line);
+      background: #fff;
+      box-shadow: 0 8px 24px rgba(15,23,42,0.08);
+    }
+    .caption { font-size: 0.85rem; color: var(--muted); margin-top: 0.6rem; }
+    pre {
+      background: var(--code);
+      color: #E2E8F0;
+      padding: 1.1rem 1.2rem;
+      overflow: auto;
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 0.82rem;
+      border-radius: 2px;
+    }
+    .limits li { margin: 0.35rem 0 0.35rem 1.1rem; color: var(--muted); }
+    footer {
+      border-top: 1px solid var(--line);
+      padding: 2rem 6vw 3rem;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+    footer a { color: var(--accent); }
+    .flow {
+      display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center;
+      font-family: "IBM Plex Mono", monospace; font-size: 0.8rem;
+    }
+    .flow span {
+      background: var(--accent-soft);
+      color: var(--accent);
+      border: 1px solid #A5F3FC;
+      padding: 0.35rem 0.55rem;
+    }
+    .flow .arrow { background: transparent; border: 0; color: var(--muted); }
+  </style>
+</head>
+<body>
+  <header class="hero">
+    <div class="hero-inner">
+      <div class="status">Released · Portfolio Demo</div>
+      <p class="brand">Mohammad Ahmadian</p>
+      <h1 class="title">Production ML Platform for Predictive Maintenance</h1>
+      <p class="lede">
+        Production-oriented machine failure risk scoring — leakage-safe features,
+        baseline vs LightGBM, chronological evaluation, FastAPI inference.
+      </p>
+      <div class="cta">
+        <a class="btn btn-primary" href="/projects/predictive-maintenance/dashboard" target="_top">Open Performance Dashboard</a>
+        <a class="btn btn-ghost" href="/projects/predictive-maintenance/architecture" target="_top">Architecture</a>
+        <a class="btn btn-ghost" href="/projects/predictive-maintenance/readme" target="_top">GitHub README</a>
+      </div>
+    </div>
+  </header>
+
+  <section>
+    <h2>What this system does</h2>
+    <p class="section-lede">
+      Scores machine failure risk from industrial sensor features on the public AI4I 2020 benchmark,
+      with train/serve separation and documented evaluation.
+    </p>
+    <div class="flow">
+      <span>AI4I CSV</span><span class="arrow">→</span>
+      <span>Validate</span><span class="arrow">→</span>
+      <span>Features</span><span class="arrow">→</span>
+      <span>Train / Eval</span><span class="arrow">→</span>
+      <span>Artifacts</span><span class="arrow">→</span>
+      <span>FastAPI</span>
+    </div>
+  </section>
+
+  <section>
+    <h2>Test-set performance</h2>
+    <p class="section-lede">Chronological split by UDI · threshold tuned on validation F1 · model version 20260726T111950Z</p>
+    <div class="kpis">
+      <div class="kpi">
+        <div class="label">Primary F1</div>
+        <div class="value">0.800</div>
+        <div class="note">LightGBM</div>
+      </div>
+      <div class="kpi">
+        <div class="label">Baseline F1</div>
+        <div class="value">0.222</div>
+        <div class="note">Logistic Regression</div>
+      </div>
+      <div class="kpi">
+        <div class="label">ROC-AUC</div>
+        <div class="value">0.944</div>
+        <div class="note">Primary · test</div>
+      </div>
+      <div class="kpi">
+        <div class="label">PR-AUC</div>
+        <div class="value">0.781</div>
+        <div class="note">Imbalanced failures</div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="split">
+      <div>
+        <h2>Architecture</h2>
+        <p class="section-lede">Figure 1. System architecture (Released). Source: presentation/architecture.</p>
+        <img class="arch" src="/assets/projects/predmaint/architecture-diagram.png" alt="Architecture diagram for Production ML Platform for Predictive Maintenance" />
+      </div>
+      <div>
+        <h2>Integrity controls</h2>
+        <ul class="limits">
+          <li>Failure-mode flags (TWF, HDF, PWF, OSF, RNF) excluded from features</li>
+          <li>Chronological split — no random shuffle across UDI order</li>
+          <li>Baseline always reported next to primary</li>
+          <li>Synthetic dataset — limitations documented</li>
+        </ul>
+        <h2 style="margin-top:2rem;">Predict contract</h2>
+        <pre>{
+  "entity_id": "L55686",
+  "features": { "air_temperature_k": 298.4, "..." : "..." }
+}</pre>
+        <p class="caption">Full sample: <code>reports/sample_predict_payload.json</code></p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Run locally</h2>
+    <pre>pip install -r requirements.txt
+set PYTHONPATH=src
+uvicorn predmaint.api.main:app --host 0.0.0.0 --port 8000
+# http://localhost:8000/docs</pre>
+  </section>
+
+  <footer>
+    <strong>Mohammad Ahmadian</strong> — AI / Machine Learning Engineer · Turkey (GMT+3)<br />
+    <a href="mailto:mohammad.ahmadian.dev@gmail.com">mohammad.ahmadian.dev@gmail.com</a>
+    · github.com/ahmadian-dev
+  </footer>
+</body>
+</html>
+
+

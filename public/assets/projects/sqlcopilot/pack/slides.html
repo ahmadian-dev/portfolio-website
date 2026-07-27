@@ -1,0 +1,29 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>90s Demo Recorder — AI SQL Copilot</title>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;600&family=IBM+Plex+Serif:wght@600&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet" />
+  <style>
+    body { margin:0; background:#0F172A; color:#F8FAFC; font-family:"IBM Plex Sans",system-ui,sans-serif; }
+    .slide { display:none; min-height:100vh; padding:8vh 8vw; }
+    .slide.active { display:flex; flex-direction:column; justify-content:center; }
+    .eyebrow { color:#A7F3D0; text-transform:uppercase; letter-spacing:.08em; font-size:.8rem; margin-bottom:1rem; }
+    h1 { font-family:"IBM Plex Serif",Georgia,serif; font-size:clamp(2rem,5vw,3.2rem); margin:0 0 1rem; }
+    p { color:#94A3B8; font-size:1.2rem; max-width:42ch; }
+    .metrics { font-family:"IBM Plex Mono",monospace; color:#67E8F9; font-size:1.4rem; margin-top:1rem; }
+  </style>
+</head>
+<body>
+  <div class="slide active" data-sec="8"><div class="eyebrow">Released</div><h1>AI SQL Copilot</h1><p>Enterprise analytics assistant — not a SQL chatbot.</p></div>
+  <div class="slide" data-sec="12"><div class="eyebrow">Method</div><h1>Schema → SQL → Safety</h1><p>Generate, validate, explain, execute — SELECT-only defaults.</p></div>
+  <div class="slide" data-sec="18"><div class="eyebrow">Results</div><h1>Fixture metrics</h1><div class="metrics">Execution 1.00 · Syntax 1.00 · Safety 1.00</div></div>
+  <div class="slide" data-sec="12"><div class="eyebrow">Delivery</div><h1>FastAPI OpenAPI</h1><p>/v1/schema · /v1/generate · /v1/explain · /v1/execute</p></div>
+  <script>
+    const slides=[...document.querySelectorAll('.slide')]; let i=0;
+    function show(n){slides.forEach((s,idx)=>s.classList.toggle('active',idx===n));}
+    setInterval(()=>{const sec=Number(slides[i].dataset.sec||10); if(!slides[i]._t)slides[i]._t=Date.now(); if(Date.now()-slides[i]._t>sec*1000){slides[i]._t=null; i=Math.min(i+1,slides.length-1); show(i);}},200);
+  </script>
+</body>
+</html>
+

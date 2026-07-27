@@ -1,0 +1,38 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>90s Demo Recorder — Forecasting</title>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;600&family=IBM+Plex+Serif:wght@600&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet" />
+  <style>
+    body { margin:0; background:#0F172A; color:#F8FAFC; font-family:"IBM Plex Sans",system-ui,sans-serif; }
+    .slide { display:none; min-height:100vh; padding:8vh 8vw; }
+    .slide.active { display:flex; flex-direction:column; justify-content:center; }
+    .eyebrow { color:#A7F3D0; text-transform:uppercase; letter-spacing:.08em; font-size:.8rem; margin-bottom:1rem; }
+    h1 { font-family:"IBM Plex Serif",Georgia,serif; font-size:clamp(2rem,5vw,3.2rem); margin:0 0 1rem; }
+    p { color:#94A3B8; font-size:1.2rem; max-width:40ch; }
+    .metrics { font-family:"IBM Plex Mono",monospace; color:#67E8F9; font-size:1.4rem; margin-top:1rem; }
+  </style>
+</head>
+<body>
+  <div class="slide active" data-sec="8"><div class="eyebrow">Released</div><h1>Enterprise Business Analytics &amp; Forecasting Platform</h1><p>Mohammad Ahmadian · Data Scientist / Analytics Engineer</p></div>
+  <div class="slide" data-sec="12"><div class="eyebrow">Problem</div><h1>Forecasts you can defend</h1><p>Chronological evaluation and baselines — not spreadsheet folklore.</p></div>
+  <div class="slide" data-sec="15"><div class="eyebrow">Method</div><h1>Panel → features → LightGBM</h1><p>Lags, rolling windows, seasonal naive + moving average baselines.</p></div>
+  <div class="slide" data-sec="18"><div class="eyebrow">Results</div><h1>Test MAPE</h1><div class="metrics">Primary 0.055 · Seasonal 0.074 · RMSE 3.17</div></div>
+  <div class="slide" data-sec="12"><div class="eyebrow">Delivery</div><h1>FastAPI /v1/forecast</h1><p>OpenAPI demo path for hiring managers.</p></div>
+  <div class="slide" data-sec="10"><div class="eyebrow">Integrity</div><h1>Honest methodology</h1><p>Seeded panel · leakage-safe features · same portfolio DNA.</p></div>
+  <script>
+    const slides = [...document.querySelectorAll('.slide')];
+    let i = 0;
+    function show(n){ slides.forEach((s,idx)=>s.classList.toggle('active', idx===n)); }
+    function next(){ i = Math.min(i+1, slides.length-1); show(i); }
+    setInterval(() => {
+      const sec = Number(slides[i].dataset.sec || 10);
+      if (!slides[i]._t) slides[i]._t = Date.now();
+      if (Date.now() - slides[i]._t > sec*1000) { slides[i]._t = null; next(); }
+    }, 200);
+    addEventListener('keydown', e => { if (e.key==='ArrowRight') next(); });
+  </script>
+</body>
+</html>
+

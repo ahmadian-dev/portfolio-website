@@ -9,7 +9,9 @@ import {
   DocumentCheckIcon,
   ShieldCheckIcon,
 } from "@heroicons/react/24/outline";
+import Link from "next/link";
 import type { ProjectConfig } from "@/lib/projects";
+import { isExternalHref } from "@/lib/project-routes";
 import { Section } from "./ui";
 import { AboutEngineer } from "./AboutEngineer";
 
@@ -31,21 +33,32 @@ export function QualityIntegrityRepo({ project }: { project: ProjectConfig }) {
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {project.engineering.map((item, i) => {
             const Icon = ICON_CYCLE[i % ICON_CYCLE.length];
-            return (
-              <a
-                key={item.href}
-                href={item.href}
-                target="_blank"
-                rel="noreferrer"
-                className="group flex items-start gap-3 rounded-xl border border-line bg-elev p-4 transition hover:border-accent/40"
-              >
+            const external = isExternalHref(item.href);
+            const className =
+              "group flex items-start gap-3 rounded-xl border border-line bg-elev p-4 transition hover:border-accent/40";
+            const body = (
+              <>
                 <Icon className="mt-0.5 h-5 w-5 shrink-0 text-accent" aria-hidden />
                 <div className="min-w-0 flex-1">
                   <p className="text-sm font-semibold text-ink group-hover:text-accent">{item.label}</p>
                   <p className="mt-1 text-xs text-muted">{item.detail}</p>
                 </div>
-                <ArrowTopRightOnSquareIcon className="mt-0.5 h-4 w-4 shrink-0 text-muted group-hover:text-accent" aria-hidden />
-              </a>
+                {external && (
+                  <ArrowTopRightOnSquareIcon className="mt-0.5 h-4 w-4 shrink-0 text-muted group-hover:text-accent" aria-hidden />
+                )}
+              </>
+            );
+            if (external) {
+              return (
+                <a key={`${item.label}-${item.href}`} href={item.href} target="_blank" rel="noreferrer" className={className}>
+                  {body}
+                </a>
+              );
+            }
+            return (
+              <Link key={`${item.label}-${item.href}`} href={item.href} className={className}>
+                {body}
+              </Link>
             );
           })}
         </div>
@@ -67,17 +80,29 @@ export function QualityIntegrityRepo({ project }: { project: ProjectConfig }) {
 
       <Section id="repository" eyebrow="Repository" title="Source of truth">
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {project.repoLinks.map((link) => (
-            <a
-              key={link.href}
-              href={link.href}
-              target="_blank"
-              rel="noreferrer"
-              className="rounded-xl border border-line bg-elev px-4 py-4 text-sm font-medium text-ink transition hover:border-accent/40 hover:text-accent"
-            >
-              {link.label}
-            </a>
-          ))}
+          {project.repoLinks.map((link) => {
+            const external = isExternalHref(link.href);
+            const className =
+              "rounded-xl border border-line bg-elev px-4 py-4 text-sm font-medium text-ink transition hover:border-accent/40 hover:text-accent";
+            if (external) {
+              return (
+                <a
+                  key={`${link.label}-${link.href}`}
+                  href={link.href}
+                  target="_blank"
+                  rel="noreferrer"
+                  className={className}
+                >
+                  {link.label}
+                </a>
+              );
+            }
+            return (
+              <Link key={`${link.label}-${link.href}`} href={link.href} className={className}>
+                {link.label}
+              </Link>
+            );
+          })}
         </div>
       </Section>
     </>

@@ -1,0 +1,92 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Computer Vision Inspection Platform — Demo</title>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Serif:wght@500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    :root { --bg:#F7F8FA; --elev:#fff; --ink:#0F172A; --muted:#475569; --line:#E2E8F0; --accent:#0E7490; --code:#0B1220; }
+    * { box-sizing:border-box; margin:0; padding:0; }
+    body { font-family:"IBM Plex Sans",system-ui,sans-serif; background:var(--bg); color:var(--ink); }
+    .hero {
+      min-height:100vh; padding:2.5rem 6vw 4rem; color:#F8FAFC;
+      display:flex; flex-direction:column; justify-content:center;
+      background: linear-gradient(180deg, rgba(15,23,42,.92), rgba(15,23,42,.78)),
+        radial-gradient(ellipse at 70% 10%, rgba(14,116,144,.4), transparent 45%), #0F172A;
+      position:relative;
+    }
+    .hero::before {
+      content:""; position:absolute; inset:0;
+      background-image:linear-gradient(rgba(248,250,252,.04) 1px, transparent 1px), linear-gradient(90deg, rgba(248,250,252,.04) 1px, transparent 1px);
+      background-size:48px 48px; pointer-events:none;
+    }
+    .inner { position:relative; max-width:1100px; }
+    .status { display:inline-block; font-size:.75rem; font-weight:600; letter-spacing:.06em; text-transform:uppercase;
+      color:#A7F3D0; border:1px solid #059669; padding:.2rem .55rem; margin-bottom:1.25rem; }
+    .brand { font-family:"IBM Plex Serif",Georgia,serif; font-size:clamp(2.1rem,4.8vw,3.2rem); font-weight:600; margin-bottom:.6rem; }
+    .title { font-size:clamp(1.05rem,2vw,1.35rem); color:#E2E8F0; max-width:48ch; margin-bottom:1rem; }
+    .lede { color:#94A3B8; max-width:54ch; margin-bottom:1.75rem; }
+    .btn { display:inline-block; text-decoration:none; font-weight:600; padding:.7rem 1.1rem; margin-right:.5rem; }
+    .p { background:var(--accent); color:#fff; }
+    .g { border:1px solid #64748B; color:#E2E8F0; }
+    section { padding:4rem 6vw; max-width:1100px; margin:0 auto; }
+    h2 { font-family:"IBM Plex Serif",Georgia,serif; font-size:1.7rem; margin-bottom:.5rem; }
+    .sub { color:var(--muted); margin-bottom:1.5rem; }
+    .kpis { display:grid; grid-template-columns:repeat(4,1fr); gap:1rem; }
+    @media(max-width:900px){ .kpis{grid-template-columns:1fr 1fr;} }
+    .kpi { background:var(--elev); border:1px solid var(--line); padding:1.1rem; }
+    .kpi .l { font-size:.75rem; color:var(--muted); text-transform:uppercase; letter-spacing:.04em; }
+    .kpi .v { font-family:"IBM Plex Mono",monospace; font-size:1.7rem; font-weight:600; color:var(--accent); margin-top:.25rem; }
+    .flow { display:flex; flex-wrap:wrap; gap:.45rem; font-family:"IBM Plex Mono",monospace; font-size:.8rem; }
+    .flow span { background:#ECFEFF; color:var(--accent); border:1px solid #A5F3FC; padding:.35rem .55rem; }
+    footer { border-top:1px solid var(--line); padding:2rem 6vw 3rem; color:var(--muted); font-size:.9rem; }
+    footer a { color:var(--accent); }
+    ul { margin-left:1.1rem; color:var(--muted); }
+    li { margin:.35rem 0; }
+  </style>
+</head>
+<body>
+  <header class="hero">
+    <div class="inner">
+      <div class="status">Released</div>
+      <div class="brand">Computer Vision Inspection Platform</div>
+      <h1 class="title">Enterprise-Grade Visual Inspection System for Industrial Quality Control</h1>
+      <p class="lede">Multi-task CV platform: classification, detection, segmentation, Grad-CAM explainability, baselines, and FastAPI delivery — not a notebook demo.</p>
+      <a class="btn p" href="/projects/computer-vision-inspection/dashboard" target="_top">Performance dashboard</a>
+      <a class="btn g" href="/projects/computer-vision-inspection/architecture" target="_top">Architecture</a>
+    </div>
+  </header>
+  <section>
+    <h2>Pipeline</h2>
+    <p class="sub">Image in → preprocess → multi-task infer → explain → serve.</p>
+    <div class="flow">
+      <span>Synthetic panel</span><span>Preprocess</span><span>ResNet18</span><span>U-Net</span><span>Segment→box</span><span>Grad-CAM</span><span>FastAPI</span>
+    </div>
+  </section>
+  <section>
+    <h2>Evaluation snapshot</h2>
+    <p class="sub">Measured on held-out synthetic test split — see reports/EVALUATION_REPORT.md</p>
+    <div class="kpis">
+      <div class="kpi"><div class="l">Primary F1</div><div class="v">1.000</div></div>
+      <div class="kpi"><div class="l">Baseline F1</div><div class="v">0.933</div></div>
+      <div class="kpi"><div class="l">Det mAP@0.5</div><div class="v">0.958</div></div>
+      <div class="kpi"><div class="l">Seg mIoU</div><div class="v">0.993</div></div>
+    </div>
+  </section>
+  <section>
+    <h2>Integrity</h2>
+    <ul>
+      <li>Baselines vs primary reported for classification and detection</li>
+      <li>Synthetic industrial imagery — methodology demo, not a plant warranty</li>
+      <li>Shared preprocess between train and serve</li>
+    </ul>
+  </section>
+  <footer>
+    Mohammad Ahmadian · AI / Machine Learning Engineer ·
+    <a href="/projects/computer-vision-inspection/readme" target="_top">README</a>
+  </footer>
+</body>
+</html>
+
+

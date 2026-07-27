@@ -10,6 +10,7 @@ import {
 } from "@heroicons/react/24/outline";
 import { motion, useReducedMotion } from "framer-motion";
 import type { ProjectConfig } from "@/lib/projects";
+import { projectHref } from "@/lib/project-routes";
 import { Button, Pill } from "./ui";
 
 export function Hero({ project }: { project: ProjectConfig }) {
@@ -47,18 +48,18 @@ export function Hero({ project }: { project: ProjectConfig }) {
               <ChartBarIcon className="h-4 w-4" aria-hidden />
               Metrics
             </Button>
-            <Button href="#architecture" variant="ghost">
+            <Button href={projectHref(project.slug, "architecture")} variant="ghost">
               <CubeTransparentIcon className="h-4 w-4" aria-hidden />
               Architecture
             </Button>
             <Button href="#api" variant="ghost">
               API Docs
             </Button>
-            <Button href="#presentation" variant="soft">
+            <Button href={projectHref(project.slug, "presentation")} variant="soft">
               <PresentationChartBarIcon className="h-4 w-4" aria-hidden />
               Presentation
             </Button>
-            <Button href={`${project.github}#readme`} variant="ghost">
+            <Button href={projectHref(project.slug, "readme")} variant="ghost">
               <BookOpenIcon className="h-4 w-4" aria-hidden />
               README
             </Button>

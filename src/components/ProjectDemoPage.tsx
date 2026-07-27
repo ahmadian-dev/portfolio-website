@@ -6,7 +6,9 @@ import { Architecture } from "@/components/Architecture";
 import { AboutEngineer, QualityIntegrityRepo } from "@/components/QualityIntegrityRepo";
 import { PresentationLinks } from "@/components/PresentationLinks";
 import type { ProjectConfig } from "@/lib/projects";
+import { projectHref } from "@/lib/project-routes";
 import { Section } from "@/components/ui";
+import Link from "next/link";
 
 const ApiExplorer = dynamic(() => import("@/components/ApiExplorer").then((m) => m.ApiExplorer), {
   loading: () => <SectionSkeleton title="API Explorer" />,
@@ -42,14 +44,12 @@ export function ProjectDemoPage({ project }: { project: ProjectConfig }) {
       <PresentationLinks project={project} />
       <ApiExplorer project={project} />
       <Section id="readme" eyebrow="README" title="Source documentation">
-        <a
-          href={`${project.github}#readme`}
-          target="_blank"
-          rel="noreferrer"
+        <Link
+          href={projectHref(project.slug, "readme")}
           className="inline-flex rounded-xl border border-line bg-elev px-5 py-4 text-sm text-accent hover:border-accent/40"
         >
-          Open project README on GitHub →
-        </a>
+          Open project README →
+        </Link>
       </Section>
       <AboutEngineer />
     </>

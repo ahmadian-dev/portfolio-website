@@ -1,28 +1,26 @@
+import Link from "next/link";
 import type { ProjectConfig } from "@/lib/projects";
+import { projectHref } from "@/lib/project-routes";
 import { Section } from "./ui";
 
 export function PresentationLinks({ project }: { project: ProjectConfig }) {
-  const presentation = project.repoLinks.find((l) => l.label === "Presentation");
-  const dashboard = project.repoLinks.find((l) => l.label === "Dashboard");
-  const architecture = project.repoLinks.find((l) => l.label === "Architecture");
+  const items = [
+    { label: "Presentation pack", href: projectHref(project.slug, "presentation") },
+    { label: "Performance dashboard", href: projectHref(project.slug, "dashboard") },
+    { label: "Architecture page", href: projectHref(project.slug, "architecture") },
+  ];
 
   return (
     <Section id="presentation" eyebrow="Presentation" title="Hiring presentation pack">
       <div className="grid gap-3 sm:grid-cols-3">
-        {[
-          { label: "Presentation pack", href: presentation?.href },
-          { label: "Performance dashboard", href: dashboard?.href },
-          { label: "Architecture page", href: architecture?.href },
-        ].map((item) => (
-          <a
+        {items.map((item) => (
+          <Link
             key={item.label}
-            href={item.href ?? project.github}
-            target="_blank"
-            rel="noreferrer"
+            href={item.href}
             className="rounded-xl border border-line bg-elev px-4 py-4 text-sm font-medium text-ink transition hover:border-accent/40 hover:text-accent"
           >
             {item.label}
-          </a>
+          </Link>
         ))}
       </div>
     </Section>
